@@ -2,7 +2,7 @@
 import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Input, Card } from "@nextui-org/react";
+import { Input, Card, Button } from "@nextui-org/react";
 
 function Signin() {
   const [error, setError] = useState("");
@@ -17,12 +17,12 @@ function Signin() {
       redirect: false,
     });
     if (res?.error) setError(res.error as string);
-    if (res?.ok) return router.push("/dashboard/profile");
+    if (res?.ok) return router.push("/tickets");
   };
 
   return (
     <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
-      <Card className="bg-neutral-950 px-8 py-10 w-4/12">
+      <Card className="bg-neutral-950 px-8 py-10">
         <form onSubmit={handleSubmit} className="flex flex-col items-center">
           {error && (
             <div className="bg-red-500 text-white p-2 mb-2">{error}</div>
@@ -45,12 +45,9 @@ function Signin() {
             name="password"
           />
 
-          <button
-            color="primary"
-            className="bg-blue-500 text-white px-4 py-2 block w-full mt-4"
-          >
+          <Button type="submit" color="primary" className="bg-blue-500 text-white px-4 py-2 block w-full mt-4">
             Ingresar
-          </button>
+          </Button>
         </form>
       </Card>
     </div>

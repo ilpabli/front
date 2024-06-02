@@ -1,5 +1,6 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import {
   Select,
@@ -9,11 +10,22 @@ import {
   Card,
   Button,
 } from "@nextui-org/react";
-import useFetch from "@/components/useFetch";
 
-function Signup() {
+function TicketCreate() {
+
+  interface JobData {
+    job_number: string;
+    job_name: string;
+    job_address: string;
+  }
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>();
-  const jobData = useFetch("http://127.0.0.1:8080/api/clients");
+  const [jobData, setJobData] = useState<JobData[]>([]);
+  useEffect(() => {
+   fetch("http://127.0.0.1:8080/api/clients")
+      .then((response) => response.json())
+      .then((data) => setJobData(data));
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,6 +41,8 @@ function Signup() {
           ele_esc: formData.get("ele_esc"),
         }
       );
+      console.log(signupResponse);
+      
     } catch (error) {
       if (error instanceof AxiosError) {
         const errorMessage = error.response?.data.message;
@@ -39,7 +53,7 @@ function Signup() {
 
   return (
     <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
-      <Card className="bg-neutral-950 px-8 py-10 w-4/12">
+      <Card className="bg-neutral-950 px-8 py-10">
         <form onSubmit={handleSubmit} className="flex flex-col items-center">
           {error && (
             <div className="bg-red-500 text-white p-2 mb-2 w-full">{error}</div>
@@ -54,15 +68,14 @@ function Signup() {
             className="max-w-xs mb-2"
             name="job_data"
           >
-            {jobData.data
-              ? jobData.data.map((job: any) => (
+            {jobData.map((job: any) => (
                   <SelectItem key={job.job_number}>{job.job_number}</SelectItem>
-                ))
-              : null}
+                ))}
+              
           </Select>
           <Input
             type="text"
-            label="Equipo"
+            label="Numero de equipo"
             placeholder="Numero..."
             name="number_ele_esc"
             className="max-w-xs mb-2"
@@ -74,8 +87,8 @@ function Signup() {
             className="max-w-xs mb-2"
             name="ele_esc"
           >
-            <SelectItem key="Escalator">Escalera</SelectItem>
-            <SelectItem key="Elevator">Ascensor</SelectItem>
+            <SelectItem key="Escalera">Escalera</SelectItem>
+            <SelectItem key="Ascensor">Ascensor</SelectItem>
           </Select>
           <Input
             type="text"
@@ -91,7 +104,7 @@ function Signup() {
             name="description"
             className="max-w-xs mb-2"
           />
-          <Button color="success" className="max-w-xs mb-2">
+          <Button type="submit" color="success" className="max-w-xs mb-2">
             Generar
           </Button>
         </form>
@@ -100,4 +113,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default TicketCreate;
