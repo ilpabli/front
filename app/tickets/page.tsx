@@ -13,7 +13,8 @@ import {
 } from "@nextui-org/react";
 import { EditIcon } from "./EditIcon";
 import Link from "next/link";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import axiosInstance from "../../components/axios";
 
 export default function Tickets() {
   interface Ticket {
@@ -43,21 +44,23 @@ export default function Tickets() {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/api/tickets")
-      .then((response) => response.json())
-      .then((data) => setTickets(data));
+    axiosInstance
+      .get("/tickets")
+      .then((response: any) => setTickets(response.data))
+      .catch((error: any) => console.error(error));
   }, []);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/api/users/technicians")
-      .then((response) => response.json())
-      .then((data) => setTechnicians(data));
+    axiosInstance
+      .get("/users/technicians")
+      .then((response: any) => setTechnicians(response.data))
+      .catch((error: any) => console.error(error));
   }, []);
 
   const assignTechnician = async (ticketId: number, assignedTo: string) => {
     try {
-      const assignTechnicianResponse = await axios.put(
-        `http://127.0.0.1:8080/api/tickets/assing/${ticketId}`,
+      const assignTechnicianResponse = await axiosInstance.put(
+        `/tickets/assing/${ticketId}`,
         {
           user: assignedTo,
         }
@@ -80,7 +83,7 @@ export default function Tickets() {
       <TableHeader>
         <TableColumn className="text-center">OBRA</TableColumn>
         <TableColumn className="text-center">FECHA</TableColumn>
-        <TableColumn className="text-center">RECLAMO</TableColumn>  
+        <TableColumn className="text-center">RECLAMO</TableColumn>
         <TableColumn className="text-center">EQUIPO</TableColumn>
         <TableColumn className="text-center">ESTADO</TableColumn>
         <TableColumn className="text-center">ASIGNADO</TableColumn>
@@ -90,19 +93,28 @@ export default function Tickets() {
         {tickets.map((ticket) => (
           <TableRow key={ticket?.ticket_id}>
             <TableCell className="text-center">{`${ticket?.job_data.job_number} - ${ticket?.job_data.job_name}`}</TableCell>
-            <TableCell className="text-center">{ticket?.ticket_createdAt}</TableCell>
-            <TableCell className="text-center">{ticket?.ticket_id} - {ticket?.ticket_status}</TableCell>  
-            <TableCell className="text-center">{ticket?.ele_esc} # {ticket?.number_ele_esc}</TableCell>
-            <TableCell className="text-center">{ticket?.status_ele_esc}</TableCell>
+            <TableCell className="text-center">
+              {ticket?.ticket_createdAt}
+            </TableCell>
+            <TableCell className="text-center">
+              {ticket?.ticket_id} - {ticket?.ticket_status}
+            </TableCell>
+            <TableCell className="text-center">
+              {ticket?.ele_esc} # {ticket?.number_ele_esc}
+            </TableCell>
+            <TableCell className="text-center">
+              {ticket?.status_ele_esc}
+            </TableCell>
             <TableCell className="text-center">
               {ticket?.assigned_to ? (
                 <span>{ticket?.assigned_to}</span>
               ) : (
-                <Select 
+                <Select
                   placeholder="Seleccione"
                   selectionMode="single"
                   className="max-w-xs text-center"
                   name="assigned_to"
+                  aria-label="Asignar técnico"
                   onChange={(event) =>
                     handleSelectChange(ticket?.ticket_id, event.target.value)
                   }
@@ -117,9 +129,12 @@ export default function Tickets() {
             </TableCell>
             <TableCell className="text-center">
               <Tooltip content="Editar Ticket">
-                <span className="text-lg text-success-400 cursor-pointer active:opacity-50">
+                <span
+                  className="text-lg text-success-400 cursor-pointer active:opacity-50"
+                  aria-label="Editar Ticket"
+                >
                   <Link href={`/tickets/${ticket?.ticket_id}`}>
-                    <EditIcon/>
+                    <EditIcon />
                   </Link>
                 </span>
               </Tooltip>

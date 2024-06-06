@@ -5,12 +5,12 @@ export const siteConfig = {
   description: "App desarollada por Pablo Gonzalez de service",
   navItems: [
     {
-      label: "Home",
-      href: "/",
+      label: "Admin Users",
+      href: "/admin/users",
     },
     {
-      label: "Docs",
-      href: "/docs",
+      label: "Admin Clients",
+      href: "/admin/clients",
     },
     {
       label: "Pricing",

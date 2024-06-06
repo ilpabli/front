@@ -1,23 +1,24 @@
 "use client";
 import { FormEvent, useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Input, Card, Button } from "@nextui-org/react";
+import { useAuth } from "@/contexts/authContext";
 
 function Signin() {
   const [error, setError] = useState("");
-  const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const res = await signIn("credentials", {
-      user: formData.get("user"),
-      password: formData.get("password"),
-      redirect: false,
-    });
-    if (res?.error) setError(res.error as string);
-    if (res?.ok) return router.push("/tickets");
+
+    try {
+      await login({
+        user: formData.get("user"),
+        password: formData.get("password"),
+      });
+    } catch (error: any) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -45,7 +46,11 @@ function Signin() {
             name="password"
           />
 
-          <Button type="submit" color="primary" className="bg-blue-500 text-white px-4 py-2 block w-full mt-4">
+          <Button
+            type="submit"
+            color="primary"
+            className="bg-blue-500 text-white px-4 py-2 block w-full mt-4"
+          >
             Ingresar
           </Button>
         </form>

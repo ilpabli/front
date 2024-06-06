@@ -12,7 +12,6 @@ import {
 } from "@nextui-org/react";
 
 function TicketCreate() {
-
   interface JobData {
     job_number: string;
     job_name: string;
@@ -22,7 +21,7 @@ function TicketCreate() {
   const [error, setError] = useState<string | undefined>();
   const [jobData, setJobData] = useState<JobData[]>([]);
   useEffect(() => {
-   fetch("http://127.0.0.1:8080/api/clients")
+    fetch("http://127.0.0.1:8080/api/clients")
       .then((response) => response.json())
       .then((data) => setJobData(data));
   }, []);
@@ -41,8 +40,8 @@ function TicketCreate() {
           ele_esc: formData.get("ele_esc"),
         }
       );
-      console.log(signupResponse);
-      
+      alert("Reclamo generado correctamente");
+      router.push("/tickets");
     } catch (error) {
       if (error instanceof AxiosError) {
         const errorMessage = error.response?.data.message;
@@ -69,9 +68,8 @@ function TicketCreate() {
             name="job_data"
           >
             {jobData.map((job: any) => (
-                  <SelectItem key={job.job_number}>{job.job_number}</SelectItem>
-                ))}
-              
+              <SelectItem key={job.job_number}>{job.job_number}</SelectItem>
+            ))}
           </Select>
           <Input
             type="text"
