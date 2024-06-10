@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }: any) => {
         setRole(userRes.role);
         Cookies.set("role", JSON.stringify(userRes.role), {
           secure: true,
-          sameSite: "Strict",
         });
         router.push("/tickets");
       } else {

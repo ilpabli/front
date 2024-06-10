@@ -26,6 +26,7 @@ export default function Tickets() {
     assigned_to: string;
     ticket_status: string;
     description: string;
+    solution: string;
   }
 
   function getStatusClass(status: string) {
@@ -70,6 +71,7 @@ export default function Tickets() {
         <TableColumn className="text-center">ESTADO</TableColumn>
         <TableColumn className="text-center">ASIGNADO</TableColumn>
         <TableColumn className="text-center">DESCRIPCION</TableColumn>
+        <TableColumn className="text-center">SOLUCION</TableColumn>
       </TableHeader>
       <TableBody className="text-center">
         {tickets.map((ticket) => (
@@ -106,6 +108,7 @@ export default function Tickets() {
               )}
             </TableCell>
             <TableCell className="text-center">{ticket?.description}</TableCell>
+            <TableCell className="text-center">{ticket?.solution}</TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -1,7 +1,6 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
 import {
   Input,
   Card,
@@ -9,6 +8,8 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
+import axiosInstance from "@/components/axios";
+import { log } from "console";
 
 function UserCreate() {
 
@@ -17,24 +18,20 @@ function UserCreate() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     try {
-      const formData = new FormData(event.currentTarget);
-      const createUserResponse = await axios.post(
-        `http://127.0.0.1:8080/api/users`,
+      await axiosInstance.post(
+        "/users/",
         {
-          first_name: formData.get("first_name"),
-          last_name: formData.get("last_name"),
-          user: formData.get("user"),
-          password: formData.get("password"),
-          email: formData.get("email"),
-        }
-      );
-      router.push("/admin/");
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data.message;
-        setError(errorMessage);
-      }
+        first_name: formData.get("first_name"),
+        last_name: formData.get("last_name"),
+        user: formData.get("user"),
+        password: formData.get("password"),
+        email: formData.get("email"),
+        role: formData.get("role"),
+      });
+    } catch (error: any) {
+      setError(error.response?.data?.error || "Error desconocido");
     }
   };
 
@@ -69,7 +66,7 @@ function UserCreate() {
             type="text"
             label="Usuario"
             placeholder="******"
-            name="password"
+            name="user"
             className="max-w-xs mb-2"
           />
           <Input
