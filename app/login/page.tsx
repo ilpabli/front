@@ -2,6 +2,7 @@
 import { FormEvent, useState } from "react";
 import { Input, Card, Button } from "@nextui-org/react";
 import { useAuth } from "@/contexts/authContext";
+import Image from 'next/image'
 
 function Signin() {
   const [error, setError] = useState("");
@@ -23,7 +24,14 @@ function Signin() {
   };
 
   return (
-    <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
+    <div className="flex flex-col justify-center items-center h-[calc(90vh-4rem)]">
+      <Image
+        priority={true}
+        src="/tecky.png"
+        width={300}
+        height={300}
+        alt="tecky"
+      />
       <Card className="bg-neutral-950 px-8 py-10">
         <form onSubmit={handleSubmit} className="flex flex-col items-center">
           {error && (

@@ -11,6 +11,7 @@ import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { useAuth } from "@/contexts/authContext";
+import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -20,10 +21,12 @@ import {
 } from "@/components/icons";
 
 export const Navbar = () => {
+  const path = usePathname();
+  if (path === "/login") {
+    return null;
+  }  
   const { role } = useAuth();
-  if (!role) {
-    return <></>;
-  }
+
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">

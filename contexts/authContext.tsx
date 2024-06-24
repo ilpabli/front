@@ -2,7 +2,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/components/axios";
-import Cookies from "js-cookie";
 
 interface AuthContextType {
   role: any;
@@ -23,7 +22,7 @@ export const AuthProvider = ({ children }: any) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedRole = Cookies.get("role");
+    const storedRole = localStorage.getItem('role')
     if (storedRole) {
       setRole(JSON.parse(storedRole));
     }
@@ -36,10 +35,8 @@ export const AuthProvider = ({ children }: any) => {
       });
       const userRes = res.data;
       if (userRes && userRes.status === "success") {
-        setRole(userRes.role);
-        Cookies.set("role", JSON.stringify(userRes.role), {
-          secure: true,
-        });
+        setRole(userRes?.role);
+        localStorage.setItem("role", JSON.stringify(userRes?.role))
         router.push("/tickets");
       } else {
         throw new Error("Error de autenticación");
@@ -51,7 +48,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const logout = () => {
     setRole(null);
-    Cookies.remove("role");
+    localStorage.removeItem("role");
   };
 
   return (
