@@ -2,7 +2,7 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "Fujitec Argentina - Sistema de reclamos",
-  description: "App desarollada por Pablo Gonzalez de service",
+  description: "App desarollada por Pablo Gonzalez - Service",
   navItems: [
     {
       label: "Generar Ticket",

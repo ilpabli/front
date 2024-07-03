@@ -11,9 +11,10 @@ import {
 } from "@nextui-org/react";
 import { EditIcon } from "./EditIcon";
 import Link from "next/link";
+import axiosInstance from "@/utils/axios";
+import UserComponent from "@/components/user";
 
 export default function Users() {
-
   interface User {
     _id: number;
     full_name: string;
@@ -26,9 +27,10 @@ export default function Users() {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/api/users")
-      .then((response) => response.json())
-      .then((data) => setUsers(data));
+    axiosInstance
+      .get("/users")
+      .then((response: any) => setUsers(response.data))
+      .catch((error: any) => console.error(error));
   }, []);
 
   return (
@@ -44,16 +46,20 @@ export default function Users() {
       <TableBody>
         {users.map((user) => (
           <TableRow key={user?._id}>
-            <TableCell className="text-center">{user?.full_name}</TableCell>
-            <TableCell className="text-center">{user?.user}</TableCell>
-            <TableCell className="text-center">{user?.email}</TableCell>  
-            <TableCell className="text-center">{user?.role}</TableCell>
-            <TableCell className="text-center">{user?.last_connection}</TableCell>
             <TableCell className="text-center">
+              <UserComponent user={user} />
+            </TableCell>
+            <TableCell className="text-center">{user?.user}</TableCell>
+            <TableCell className="text-center">{user?.email}</TableCell>
+            <TableCell className="text-center">{user?.role}</TableCell>
+            <TableCell className="text-center">
+              {user?.last_connection}
+            </TableCell>
+            <TableCell className="text-center justify-center flex">
               <Tooltip content="Editar usuario">
                 <span className="text-lg text-success-400 cursor-pointer active:opacity-50">
                   <Link href={`/admin/users/${user?.user}`}>
-                    <EditIcon/>
+                    <EditIcon />
                   </Link>
                 </span>
               </Tooltip>

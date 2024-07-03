@@ -9,8 +9,10 @@ import {
   TableCell,
   Button,
 } from "@nextui-org/react";
-import { UserIcon } from "./UserIcon";
+import { DangerIcon } from "./DangerIcon";
 import io from "socket.io-client";
+import TimeCounterComponent from "@/components/timecounter";
+import TechnicianComponent from "@/components/technician";
 
 export default function Tickets() {
   interface Ticket {
@@ -31,28 +33,28 @@ export default function Tickets() {
 
   function getStatusClass(status: string) {
     switch (status) {
-      case 'Abierto':
-        return 'status-open';
-      case 'En proceso':
-        return 'status-in-process';
-      case 'Cerrado':
-        return 'status-closed';
+      case "Abierto":
+        return "status-open";
+      case "En proceso":
+        return "status-in-process";
+      case "Cerrado":
+        return "status-closed";
       default:
-        return '';
+        return "";
     }
   }
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    const socket = io('http://127.0.0.1:8080');
-    socket.on('connect', () => {
-      console.log('Monitor Online!');
+    const socket = io(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`);
+    socket.on("connect", () => {
+      console.log("Monitor Online!");
     });
-    socket.on('tickets', (data) => {
+    socket.on("tickets", (data) => {
       setTickets(data);
     });
-    socket.on('db-update', (data) => {
+    socket.on("db-update", (data) => {
       setTickets(data);
     });
     return () => {
@@ -77,18 +79,25 @@ export default function Tickets() {
         {tickets.map((ticket) => (
           <TableRow key={ticket?.ticket_id}>
             <TableCell className="text-center">{`${ticket?.job_data.job_number} - ${ticket?.job_data.job_name}`}</TableCell>
-            <TableCell className="text-center">{ticket?.ele_esc} # {ticket?.number_ele_esc}</TableCell>
+            <TableCell className="text-center">
+              {ticket?.ele_esc} # {ticket?.number_ele_esc}
+            </TableCell>
             <TableCell className="text-center">{ticket?.ticket_id}</TableCell>
-            <TableCell className={`text-center ${getStatusClass(ticket?.ticket_status)}`}>
-    {ticket?.ticket_status}
-  </TableCell>
-            <TableCell className="text-center">{ticket?.ticket_createdAt}</TableCell>
+            <TableCell
+              className={`text-center ${getStatusClass(ticket?.ticket_status)}`}
+            >
+              {ticket?.ticket_status}
+            </TableCell>
+            <TableCell className="text-center">
+              {ticket?.ticket_createdAt}
+              <TimeCounterComponent ticket={ticket} />
+            </TableCell>
             <TableCell className="text-center">
               <Button
                 color="danger"
                 variant="bordered"
                 startContent={
-                  <UserIcon
+                  <DangerIcon
                     filled={true}
                     size="25"
                     height="24px"
@@ -102,7 +111,7 @@ export default function Tickets() {
             </TableCell>
             <TableCell className="text-center">
               {ticket?.assigned_to ? (
-                <span>{ticket?.assigned_to}</span>
+                <TechnicianComponent assigned_to={ticket?.assigned_to} />
               ) : (
                 "Sin Asignar"
               )}

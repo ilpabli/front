@@ -1,17 +1,16 @@
 "use client";
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
-import axiosInstance from "@/components/axios";
-import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axios";
 
 interface AuthContextType {
-  role: any;
+  user: any;
   login: (credentials: any) => Promise<void>;
   logout: () => void;
 }
 
 const defaultAuthContext: AuthContextType = {
-  role: null,
+  user: null,
   login: async () => {},
   logout: () => {},
 };
@@ -19,13 +18,13 @@ const defaultAuthContext: AuthContextType = {
 const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 export const AuthProvider = ({ children }: any) => {
-  const [role, setRole] = useState(null);
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const storedRole = Cookies.get("role");
-    if (storedRole) {
-      setRole(JSON.parse(storedRole));
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
@@ -36,10 +35,8 @@ export const AuthProvider = ({ children }: any) => {
       });
       const userRes = res.data;
       if (userRes && userRes.status === "success") {
-        setRole(userRes.role);
-        Cookies.set("role", JSON.stringify(userRes.role), {
-          secure: true,
-        });
+        setUser(userRes.user);
+        localStorage.setItem("user", JSON.stringify(userRes.user));
         router.push("/tickets");
       } else {
         throw new Error("Error de autenticación");
@@ -50,12 +47,12 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   const logout = () => {
-    setRole(null);
-    Cookies.remove("role");
+    setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ role, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

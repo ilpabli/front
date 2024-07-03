@@ -3,13 +3,8 @@ import { FormEvent, useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import axios, { AxiosError } from "axios";
-import {
-  Select,
-  SelectItem,
-  Input,
-  Card,
-  Button,
-} from "@nextui-org/react";
+import { Select, SelectItem, Input, Card, Button } from "@nextui-org/react";
+import axiosInstance from "@/utils/axios";
 
 function UserEdit() {
   interface User {
@@ -34,19 +29,24 @@ function UserEdit() {
   });
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8080/api/users/${userId}`)
-      .then((response) => response.json())
-      .then((data) => setUser(data));
+    axiosInstance
+      .get(`users/${userId}`)
+      .then((response: any) => setUser(response.data))
+      .catch((error: any) => console.error(error));
   }, [userId]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
     setUser((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
-  
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
@@ -71,63 +71,69 @@ function UserEdit() {
   };
   return (
     <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
-      {user.user && (<Card className="bg-neutral-950 px-8 py-10">
-        <form onSubmit={handleSubmit} className="flex flex-col items-center">
-          {error && (
-            <div className="bg-red-500 text-white p-2 mb-2 w-full">{error}</div>
-          )}
-          <h1 className="text-4xl font-bold mb-7 text-center">
-            Usuario {userId}
-          </h1>
-          <Input
-            type="text"
-            label="Nombre"
-            placeholder="Nombre..."
-            name="first_name"
-            className="max-w-xs mb-2"
-            value={user.first_name}
-            onChange={handleInputChange}
-          />
-          <Input
-            type="text"
-            label="Apellido"
-            placeholder="Apellido..."
-            name="last_name"
-            className="max-w-xs mb-2"
-            value={user.last_name}
-            onChange={handleInputChange}
-          />
-          <Input
-            type="text"
-            label="Usuario"
-            placeholder="Usuario..."
-            name="user"
-            className="max-w-xs mb-2"
-            value={user.user}
-            onChange={handleInputChange}
-          />
-          <Select
-            placeholder="Puesto"
-            label="Role"
-            selectionMode="single"
-            className="max-w-xs mb-2"
-            name="ele_esc"
-            value={user.role}
-            onChange={handleInputChange}
-          >
-            <SelectItem key="user">Usuario</SelectItem>
-            <SelectItem key="technician">Tecnico</SelectItem>
-            <SelectItem key="supervisor">Supervisor</SelectItem>
-            <SelectItem key="receptionist">Recepcionista</SelectItem>
-          </Select>
-          <Button type="submit" color="danger" className="max-w-xs mb-2">
-            Guardar
-          </Button>
-        </form>
-        <Link href="/admin/users" className="px-20">
-        <Button type="submit" color="primary" className="max-w-xs mt-2">Atras</Button>
-        </Link>
-      </Card>)}
+      {user.user && (
+        <Card className="bg-neutral-950 px-8 py-10">
+          <form onSubmit={handleSubmit} className="flex flex-col items-center">
+            {error && (
+              <div className="bg-red-500 text-white p-2 mb-2 w-full">
+                {error}
+              </div>
+            )}
+            <h1 className="text-4xl font-bold mb-7 text-center">
+              Usuario {userId}
+            </h1>
+            <Input
+              type="text"
+              label="Nombre"
+              placeholder="Nombre..."
+              name="first_name"
+              className="max-w-xs mb-2"
+              value={user.first_name}
+              onChange={handleInputChange}
+            />
+            <Input
+              type="text"
+              label="Apellido"
+              placeholder="Apellido..."
+              name="last_name"
+              className="max-w-xs mb-2"
+              value={user.last_name}
+              onChange={handleInputChange}
+            />
+            <Input
+              type="text"
+              label="Usuario"
+              placeholder="Usuario..."
+              name="user"
+              className="max-w-xs mb-2"
+              value={user.user}
+              onChange={handleInputChange}
+            />
+            <Select
+              placeholder="Puesto"
+              label="Role"
+              selectionMode="single"
+              className="max-w-xs mb-2"
+              name="ele_esc"
+              value={user.role}
+              onChange={handleInputChange}
+            >
+              <SelectItem key="user">Usuario</SelectItem>
+              <SelectItem key="technician">Tecnico</SelectItem>
+              <SelectItem key="supervisor">Supervisor</SelectItem>
+              <SelectItem key="receptionist">Recepcionista</SelectItem>
+            </Select>
+            <Button type="submit" color="danger" className="max-w-xs mb-2">
+              Guardar
+            </Button>
+          </form>
+          <Link href="/admin/users" className="px-20">
+            <Button type="submit" color="primary" className="max-w-xs mt-2">
+              Atras
+            </Button>
+          </Link>
+        </Card>
+      )}
     </div>
   );
 }

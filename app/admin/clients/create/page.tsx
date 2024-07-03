@@ -1,15 +1,11 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
-import {
-  Input,
-  Card,
-  Button,
-} from "@nextui-org/react";
+import { AxiosError } from "axios";
+import { Input, Card, Button } from "@nextui-org/react";
+import axiosInstance from "@/utils/axios";
 
 function ClientCreate() {
-
   const router = useRouter();
   const [error, setError] = useState<string | undefined>();
 
@@ -17,18 +13,15 @@ function ClientCreate() {
     event.preventDefault();
     try {
       const formData = new FormData(event.currentTarget);
-      const createClientsResponse = await axios.post(
-        `http://127.0.0.1:8080/api/clients`,
-        {
-          job_number: formData.get("job_number"),
-          job_name: formData.get("job_name"),
-          job_address: formData.get("job_address"),
-          gps_point: {
-            lat: formData.get("lat"),
-            lng: formData.get("lng"),
-          },
-        }
-      );
+      const createClientsResponse = await axiosInstance.post(`/clients`, {
+        job_number: formData.get("job_number"),
+        job_name: formData.get("job_name"),
+        job_address: formData.get("job_address"),
+        gps_point: {
+          lat: formData.get("lat"),
+          lng: formData.get("lng"),
+        },
+      });
       router.push("/admin/");
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -74,7 +67,7 @@ function ClientCreate() {
           />
           <Input
             isRequired
-            type="email"
+            type="text"
             label="Latitud GPS"
             placeholder="Ej: -34.6079434"
             name="lat"
@@ -82,13 +75,13 @@ function ClientCreate() {
           />
           <Input
             isRequired
-            type="password"
+            type="text"
             label="Longitud GPS"
             placeholder="Ej: -58.3787982"
             name="lng"
             className="max-w-xs mb-2"
           />
-          <Button type="submit" color="success" className="max-w-xs mb-2">
+          <Button type="submit" color="success" className="max-w-xs mt-5">
             Generar
           </Button>
         </form>

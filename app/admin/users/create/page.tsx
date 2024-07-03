@@ -1,18 +1,10 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Input,
-  Card,
-  Button,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
-import axiosInstance from "@/components/axios";
-import { log } from "console";
+import { Input, Card, Button, Select, SelectItem } from "@nextui-org/react";
+import axiosInstance from "@/utils/axios";
 
 function UserCreate() {
-
   const router = useRouter();
   const [error, setError] = useState<string | undefined>();
 
@@ -20,9 +12,7 @@ function UserCreate() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     try {
-      await axiosInstance.post(
-        "/users/",
-        {
+      await axiosInstance.post("/users/", {
         first_name: formData.get("first_name"),
         last_name: formData.get("last_name"),
         user: formData.get("user"),
@@ -97,7 +87,7 @@ function UserCreate() {
             name="password"
             className="max-w-xs mb-2"
           />
-          <Button type="submit" color="success" className="max-w-xs mb-2">
+          <Button type="submit" color="success" className="max-w-xs mt-5">
             Generar
           </Button>
         </form>

@@ -1,100 +1,61 @@
 "use client";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
+import React, { useState, useEffect } from "react";
+import axiosInstance from "@/utils/axios";
 import {
-  Input,
-  Card,
-  Button,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Tooltip,
 } from "@nextui-org/react";
+import { EditIcon } from "./EditIcon";
+import Link from "next/link";
 
-function ClientCreate() {
-
-  const router = useRouter();
+export default function Clients() {
+  interface Client {
+    _id: number;
+    job_number: string;
+    job_name: string;
+    job_address: string;
+  }
+  const [clients, setClients] = useState<Client[]>([]);
   const [error, setError] = useState<string | undefined>();
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      const formData = new FormData(event.currentTarget);
-      const createClientsResponse = await axios.post(
-        `http://127.0.0.1:8080/api/clients`,
-        {
-          job_number: formData.get("job_number"),
-          job_name: formData.get("job_name"),
-          job_address: formData.get("job_address"),
-          gps_point: {
-            lat: formData.get("lat"),
-            lng: formData.get("lng"),
-          },
-        }
-      );
-      router.push("/admin/");
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data.message;
-        setError(errorMessage);
-      }
-    }
-  };
+  useEffect(() => {
+    axiosInstance
+      .get("/clients")
+      .then((response: any) => setClients(response.data))
+      .catch((error: any) => console.error(error));
+  }, []);
 
   return (
-    <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
-      <Card className="bg-neutral-950 px-8 py-10">
-        <form onSubmit={handleSubmit} className="flex flex-col items-center">
-          {error && (
-            <div className="bg-red-500 text-white p-2 mb-2 w-full">{error}</div>
-          )}
-          <h1 className="text-4xl font-bold mb-7 text-center">
-            Creación de clientes
-          </h1>
-          <Input
-            isRequired
-            type="text"
-            label="Numero de obra"
-            placeholder="Ej: 004"
-            name="job_number"
-            className="max-w-xs mb-2"
-          />
-          <Input
-            isRequired
-            type="text"
-            label="Nombre de la obra"
-            placeholder="Ej: Pampa Energia"
-            name="job_name"
-            className="max-w-xs mb-2"
-          />
-          <Input
-            isRequired
-            type="text"
-            label="Direccion de la obra"
-            placeholder="Ej: Maipu 1"
-            name="job_address"
-            className="max-w-xs mb-2"
-          />
-          <Input
-            isRequired
-            type="email"
-            label="Latitud GPS"
-            placeholder="Ej: -34.6079434"
-            name="lat"
-            className="max-w-xs mb-2"
-          />
-          <Input
-            isRequired
-            type="password"
-            label="Longitud GPS"
-            placeholder="Ej: -58.3787982"
-            name="lng"
-            className="max-w-xs mb-2"
-          />
-          <Button type="submit" color="success" className="max-w-xs mb-2">
-            Generar
-          </Button>
-        </form>
-      </Card>
-    </div>
+    <Table aria-label="Example static collection table">
+      <TableHeader>
+        <TableColumn className="text-center">NOMBRE</TableColumn>
+        <TableColumn className="text-center">NUMERO</TableColumn>
+        <TableColumn className="text-center">DIRECCION</TableColumn>
+        <TableColumn className="text-center">ACCIONES</TableColumn>
+      </TableHeader>
+      <TableBody>
+        {clients.map((client) => (
+          <TableRow key={client?._id}>
+            <TableCell className="text-center">{client?.job_name}</TableCell>
+            <TableCell className="text-center">{client?.job_number}</TableCell>
+            <TableCell className="text-center">{client?.job_address}</TableCell>
+            <TableCell className="text-center justify-center flex">
+              <Tooltip content="Editar usuario">
+                <span className="text-lg text-success-400 cursor-pointer active:opacity-50">
+                  <Link href={`/admin/clients/${client?.job_number}`}>
+                    <EditIcon />
+                  </Link>
+                </span>
+              </Tooltip>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
-
-export default ClientCreate;
