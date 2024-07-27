@@ -1,26 +1,32 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { getTicketsfiltered, getTechnicians } from "../../utils/axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import TicketsComponent from "@/components/tickets";
-import io from "socket.io-client";
 import LoadingComponent from "@/components/loading";
+import { useSocket } from "@/contexts/socketContext";
 
 export default function Tickets() {
   const queryClient = useQueryClient();
+  const { socket } = useSocket();
+  const [activeTechnicians, setActiveTechnicians] = useState(undefined);
+
   useEffect(() => {
-    const socket = io(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`);
-    socket.on("connect", () => {});
-    socket.on("db-update", () => {
-      queryClient.invalidateQueries({
-        queryKey: ["tickets"],
-        refetchType: "active",
+    if (socket) {
+      socket.on("db-update", () => {
+        queryClient.invalidateQueries({
+          queryKey: ["tickets"],
+          refetchType: "active",
+        });
       });
-    });
+      socket.on("priorityAlert", (data) => {});
+    }
     return () => {
-      socket.disconnect();
+      if (socket) {
+        socket.off("db-update");
+      }
     };
-  }, []);
+  }, [socket, queryClient]);
 
   const {
     isLoading,
@@ -30,14 +36,43 @@ export default function Tickets() {
   } = useQuery({
     queryKey: ["tickets"],
     queryFn: getTicketsfiltered,
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
   });
 
-  const { data: technicians, isLoading: isLoadingtechnicians } = useQuery({
+  const {
+    data: technicians,
+    isLoading: isLoadingtechnicians,
+    refetch,
+  } = useQuery({
     queryKey: ["technicians"],
-    queryFn: getTechnicians,
+    queryFn: () => getTechnicians(activeTechnicians),
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
   });
+
+  const handleActiveTechnicians = (data: any) => {
+    setActiveTechnicians(data);
+  };
+
+  useEffect(() => {
+    if (activeTechnicians) {
+      refetch();
+    }
+  }, [activeTechnicians, refetch]);
 
   if (isLoading || isLoadingtechnicians) return <LoadingComponent />;
-  else if (isError) return <div>{error.message}</div>;
-  return <TicketsComponent tickets={tickets} technicians={technicians} />;
+  else if (isError)
+    return (
+      <div className="justify-center h-[calc(80vh-4rem)] flex flex-col items-center">
+        {error.message}
+      </div>
+    );
+  return (
+    <TicketsComponent
+      tickets={tickets}
+      technicians={technicians}
+      setTime={handleActiveTechnicians}
+    />
+  );
 }

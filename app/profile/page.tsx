@@ -1,18 +1,19 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import { getClients } from "@/utils/axios";
-import CreateTicketComponent from "@/components/createticket";
+import React from "react";
 import LoadingComponent from "@/components/loading";
+import { getProfile } from "@/utils/axios";
+import { useQuery } from "@tanstack/react-query";
+import ProfileComponent from "@/components/profile";
 
-function TicketCreate() {
+function Profile() {
   const {
     isLoading,
-    data: clients,
+    data: profile,
     isError,
     error,
   } = useQuery({
-    queryKey: ["clients"],
-    queryFn: () => getClients(undefined),
+    queryKey: ["profile"],
+    queryFn: getProfile,
     refetchOnWindowFocus: false,
     staleTime: 60 * 60 * 1000,
   });
@@ -24,7 +25,6 @@ function TicketCreate() {
         {error.message}
       </div>
     );
-  return <CreateTicketComponent clients={clients} />;
+  return <ProfileComponent profile={profile} />;
 }
-
-export default TicketCreate;
+export default Profile;

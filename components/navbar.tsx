@@ -8,26 +8,35 @@ import {
   NavbarMenu,
   NavbarMenuItem,
 } from "@nextui-org/navbar";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownTrigger,
+  DropdownMenu,
+  Avatar,
+} from "@nextui-org/react";
 import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { useAuth } from "@/contexts/authContext";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
-import { Logo, ProfileIcon } from "@/components/icons";
+import { Logo } from "@/components/icons";
 
 export const Navbar = () => {
   const path = usePathname();
   if (path === "/login") {
     return null;
   }
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
+    <NextUINavbar maxWidth="xl" position="sticky" className="pb-5">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
+          <NextLink
+            className="flex justify-start items-center gap-1"
+            href="/monitor"
+          >
             <Logo />
           </NextLink>
         </NavbarBrand>
@@ -77,14 +86,49 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2 mt-9">
-          <NextLink aria-label="Profile" href={siteConfig.links.profile}>
-            <ProfileIcon className="text-default-500" />
-          </NextLink>
-          <ThemeSwitch />
+          {user && (
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Avatar
+                  isBordered
+                  as="button"
+                  className="transition-transform"
+                  color="success"
+                  name={user?.user}
+                  size="md"
+                  src={user?.img}
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Profile Actions" variant="flat">
+                <DropdownItem
+                  key="profile"
+                  className="h-14 gap-2"
+                  href="/profile"
+                  textValue="profile"
+                >
+                  <p className="font-semibold">
+                    {user?.first_name} {user?.last_name}
+                  </p>
+                  <p className="font-semibold">Perfil: {user.role}</p>
+                </DropdownItem>
+                <DropdownItem key="notifications" textValue="notifications">
+                  Notificaciones
+                </DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  value="logout"
+                  onPress={() => logout()}
+                  color="danger"
+                  textValue="logout"
+                >
+                  Desconectarse
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
         </NavbarItem>
       </NavbarContent>
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <ThemeSwitch />
         <NavbarMenuToggle />
         <NavbarMenu>
           {siteConfig.navItems.map((item) => (

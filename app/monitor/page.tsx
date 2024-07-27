@@ -9,10 +9,11 @@ import {
   TableCell,
   Button,
 } from "@nextui-org/react";
-import { DangerIcon } from "./DangerIcon";
-import io from "socket.io-client";
+import { DangerIcon } from "@/components/icons";
+import { useSocket } from "@/contexts/socketContext";
 import TimeCounterComponent from "@/components/timecounter";
 import TechnicianComponent from "@/components/technician";
+import LoadingComponent from "@/components/loading";
 
 export default function Tickets() {
   interface Ticket {
@@ -29,6 +30,7 @@ export default function Tickets() {
     ticket_status: string;
     description: string;
     solution: string;
+    priority: string;
   }
 
   function getStatusClass(status: string) {
@@ -44,23 +46,34 @@ export default function Tickets() {
     }
   }
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [error, setError] = useState<string | undefined>();
+  const { socket } = useSocket();
 
   useEffect(() => {
-    const socket = io(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`);
-    socket.on("connect", () => {
-      console.log("Monitor Online!");
-    });
-    socket.on("tickets", (data) => {
-      setTickets(data);
-    });
-    socket.on("db-update", (data) => {
-      setTickets(data);
-    });
+    if (socket) {
+      socket.emit("getTickets");
+
+      socket.on("db-update", (data) => {
+        setTickets(data);
+      });
+
+      socket.on("tickets", (data) => {
+        setTickets(data);
+      });
+    }
     return () => {
-      socket.disconnect();
+      if (socket) {
+        socket.off("db-update");
+        socket.off("tickets");
+      }
     };
-  }, []);
+  }, [socket]);
+
+  if (!tickets)
+    return (
+      <div>
+        <LoadingComponent />
+      </div>
+    );
 
   return (
     <Table aria-label="Example static collection table">
@@ -68,12 +81,11 @@ export default function Tickets() {
         <TableColumn className="text-center">OBRA</TableColumn>
         <TableColumn className="text-center">EQUIPO</TableColumn>
         <TableColumn className="text-center">RECLAMO</TableColumn>
-        <TableColumn className="text-center">ESTADO</TableColumn>
         <TableColumn className="text-center">FECHA</TableColumn>
         <TableColumn className="text-center">ESTADO</TableColumn>
-        <TableColumn className="text-center">ASIGNADO</TableColumn>
-        <TableColumn className="text-center">DESCRIPCION</TableColumn>
-        <TableColumn className="text-center">SOLUCION</TableColumn>
+        <TableColumn className="text-center">TÉCNICO</TableColumn>
+        <TableColumn className="text-center">DESCRIPCIÓN</TableColumn>
+        <TableColumn className="text-center">SOLUCIÓN</TableColumn>
       </TableHeader>
       <TableBody className="text-center">
         {tickets.map((ticket) => (
@@ -82,31 +94,30 @@ export default function Tickets() {
             <TableCell className="text-center">
               {ticket?.ele_esc} # {ticket?.number_ele_esc}
             </TableCell>
-            <TableCell className="text-center">{ticket?.ticket_id}</TableCell>
-            <TableCell
-              className={`text-center ${getStatusClass(ticket?.ticket_status)}`}
-            >
-              {ticket?.ticket_status}
+            <TableCell className="text-center">
+              <div>#{ticket?.ticket_id}</div>
+              <div
+                className={`text-center ${getStatusClass(ticket?.ticket_status)}`}
+              >
+                {ticket?.ticket_status}
+              </div>
             </TableCell>
             <TableCell className="text-center">
               {ticket?.ticket_createdAt}
               <TimeCounterComponent ticket={ticket} />
             </TableCell>
             <TableCell className="text-center">
-              <Button
-                color="danger"
-                variant="bordered"
-                startContent={
-                  <DangerIcon
-                    filled={true}
-                    size="25"
-                    height="24px"
-                    width="24px"
-                    label={ticket?.status_ele_esc}
-                  />
-                }
-              >
-                {ticket?.status_ele_esc}
+              <Button color="danger" startContent={<DangerIcon />}>
+                <div className="text-white font-bold">
+                  {ticket?.status_ele_esc}
+                  {ticket?.priority &&
+                    (ticket?.ticket_status === "Abierto" ||
+                      ticket?.ticket_status === "En proceso") && (
+                      <div className="text-white font-bold animate-pulse">
+                        {ticket?.priority}
+                      </div>
+                    )}
+                </div>
               </Button>
             </TableCell>
             <TableCell className="text-center">

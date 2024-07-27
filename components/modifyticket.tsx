@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import NextLink from "next/link";
 import {
   Select,
   SelectItem,
@@ -41,9 +41,8 @@ const ModifyticketComponent = ({ ticket, ticketId }: any) => {
       );
       const update = await updateTicket(ticketId, filteredData);
     } catch (error: any) {
-      console.log(error);
       if (error) {
-        return setError("Todos los valores son requeridos");
+        return setError(error.response.data.error);
       }
       setError("Error Desconocido");
     }
@@ -128,11 +127,11 @@ const ModifyticketComponent = ({ ticket, ticketId }: any) => {
               Guardar
             </Button>
           </form>
-          <Link href="/tickets" className="px-20">
+          <NextLink href="/tickets" className="px-20">
             <Button color="primary" className="max-w-xs mt-2" variant="shadow">
               Atras
             </Button>
-          </Link>
+          </NextLink>
         </Card>
       )}
     </div>

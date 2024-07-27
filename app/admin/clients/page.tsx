@@ -1,61 +1,42 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import axiosInstance from "@/utils/axios";
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Tooltip,
-} from "@nextui-org/react";
-import { EditIcon } from "./EditIcon";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/utils/axios";
+import LoadingComponent from "@/components/loading";
+import ClientsComponent from "@/components/clients";
 
 export default function Clients() {
-  interface Client {
-    _id: number;
-    job_number: string;
-    job_name: string;
-    job_address: string;
-  }
-  const [clients, setClients] = useState<Client[]>([]);
-  const [error, setError] = useState<string | undefined>();
+  const [pageQuery, setPageQuery] = useState<Number>(1);
+  const {
+    isLoading,
+    data: clients,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["clientsFiltered"],
+    queryFn: () => getClients(pageQuery),
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const handleSetPage = (page: number) => {
+    setPageQuery(page);
+  };
 
   useEffect(() => {
-    axiosInstance
-      .get("/clients")
-      .then((response: any) => setClients(response.data))
-      .catch((error: any) => console.error(error));
-  }, []);
+    if (pageQuery) {
+      refetch();
+    }
+  }, [pageQuery, refetch]);
 
-  return (
-    <Table aria-label="Example static collection table">
-      <TableHeader>
-        <TableColumn className="text-center">NOMBRE</TableColumn>
-        <TableColumn className="text-center">NUMERO</TableColumn>
-        <TableColumn className="text-center">DIRECCION</TableColumn>
-        <TableColumn className="text-center">ACCIONES</TableColumn>
-      </TableHeader>
-      <TableBody>
-        {clients.map((client) => (
-          <TableRow key={client?._id}>
-            <TableCell className="text-center">{client?.job_name}</TableCell>
-            <TableCell className="text-center">{client?.job_number}</TableCell>
-            <TableCell className="text-center">{client?.job_address}</TableCell>
-            <TableCell className="text-center justify-center flex">
-              <Tooltip content="Editar usuario">
-                <span className="text-lg text-success-400 cursor-pointer active:opacity-50">
-                  <Link href={`/admin/clients/${client?.job_number}`}>
-                    <EditIcon />
-                  </Link>
-                </span>
-              </Tooltip>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+  if (isLoading) return <LoadingComponent />;
+  else if (isError)
+    return (
+      <div className="justify-center h-[calc(80vh-4rem)] flex flex-col items-center">
+        {error.message}
+      </div>
+    );
+
+  return <ClientsComponent clients={clients} handleSetPage={handleSetPage} />;
 }

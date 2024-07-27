@@ -7,22 +7,21 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Link,
 } from "@nextui-org/react";
 import { EyeIcon } from "./icons";
 
 export default function DescriptionComponent({ ticket }: any) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
-    <div>
-      <Button
-        variant="faded"
+    <div className="mx-1">
+      <Link
         onPress={onOpen}
-        isIconOnly
-        color="success"
-        size="sm"
+        underline="hover"
+        className="text-success cursor-pointer"
       >
         <EyeIcon />
-      </Button>
+      </Link>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
@@ -30,9 +29,17 @@ export default function DescriptionComponent({ ticket }: any) {
               <ModalHeader className="flex flex-col gap-1">
                 Reclamo: {ticket.ticket_id}
               </ModalHeader>
-              <ModalBody>Descripcion: {ticket.description}</ModalBody>
+              <ModalBody>
+                <p>Contacto: {ticket?.contact}</p>
+                <p>Descripción: {ticket.description}</p>
+              </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  color="danger"
+                  className="font-bold"
+                  variant="light"
+                  onPress={onClose}
+                >
                   Cerrar
                 </Button>
               </ModalFooter>

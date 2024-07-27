@@ -3,6 +3,8 @@ import { decodeJwt } from "jose";
 
 export async function middleware(req: any) {
   const token = req.cookies.get("token");
+  const { pathname } = req.nextUrl;
+
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
@@ -25,7 +27,6 @@ export async function middleware(req: any) {
     const receptionistPaths = ["/tickets/create"];
     const userPaths = ["/monitor", "/monitor/*"];
     const technicianPaths = ["/monitor", "/monitor/*"];
-    const { pathname } = req.nextUrl;
     const userRole = user.role;
     const isAdminPath = adminPaths.some((path) => pathname.startsWith(path));
     const isSupervisorPath = supervisorPaths.some((path) =>

@@ -1,26 +1,35 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Input, Card, Button } from "@nextui-org/react";
 import { useAuth } from "@/contexts/authContext";
 import Image from "next/image";
+import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 
 function Signin() {
   const [error, setError] = useState("");
   const { login } = useAuth();
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      user: "",
+      password: "",
+    },
+  });
 
+  const onSubmit = handleSubmit(async (data) => {
     try {
-      await login({
-        user: formData.get("user"),
-        password: formData.get("password"),
-      });
+      await login(data);
     } catch (error: any) {
       setError(error.message);
     }
-  };
+  });
 
   return (
     <div className="flex flex-col justify-center items-center h-[calc(90vh-4rem)]">
@@ -32,7 +41,7 @@ function Signin() {
         alt="tecky"
       />
       <Card className="bg-neutral-950 px-8 py-10">
-        <form onSubmit={handleSubmit} className="flex flex-col items-center">
+        <form onSubmit={onSubmit} className="flex flex-col items-center">
           {error && (
             <div className="bg-red-500 text-white p-2 mb-2">{error}</div>
           )}
@@ -43,15 +52,40 @@ function Signin() {
             label="Usuario"
             placeholder="Tecky"
             className="max-w-xs mb-2"
-            name="user"
+            isClearable
+            variant="bordered"
+            {...register("user", {
+              required: "Usuario?",
+            })}
+            errorMessage={errors?.user?.message}
+            isInvalid={!!errors.user?.message}
           />
 
           <Input
-            type="password"
             label="Password"
             placeholder="******"
+            endContent={
+              <button
+                className="focus:outline-none"
+                type="button"
+                onClick={toggleVisibility}
+                aria-label="toggle password visibility"
+              >
+                {isVisible ? (
+                  <EyeSlashFilledIcon aria-hidden="true" />
+                ) : (
+                  <EyeFilledIcon aria-hidden="true" />
+                )}
+              </button>
+            }
+            type={isVisible ? "text" : "password"}
             className="max-w-xs mb-2"
-            name="password"
+            variant="bordered"
+            {...register("password", {
+              required: "Es necesario ingresar su password.",
+            })}
+            errorMessage={errors?.password?.message}
+            isInvalid={!!errors.password?.message}
           />
 
           <Button

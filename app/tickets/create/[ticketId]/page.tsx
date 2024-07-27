@@ -14,8 +14,9 @@ export default function TicketEdit() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["ticket"],
+    queryKey: ["ticket", ticketId],
     queryFn: () => getTicket(ticketId),
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) return <LoadingComponent />;

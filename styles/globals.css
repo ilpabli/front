@@ -2,20 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-  .status-open {
-    color: rgb(241, 245, 1);
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-  }
-  
-  .status-in-process {
-    color: rgb(1, 247, 255);
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-  }
-  
-  .status-closed {
-    color: rgb(9, 255, 0);
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-  }
+.status-open {
+  color: rgb(241, 245, 1);
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
+}
+
+.status-in-process {
+  color: rgb(1, 247, 255);
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
+}
+
+.status-closed {
+  color: rgb(9, 255, 0);
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
+}

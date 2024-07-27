@@ -46,9 +46,17 @@ export const AuthProvider = ({ children }: any) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+  const logout = async () => {
+    try {
+      localStorage.removeItem("user");
+      setUser(null);
+      const res = await axiosInstance.post("users/logout", {
+        withCredentials: true,
+      });
+      router.push("/login");
+    } catch (error) {
+      throw error;
+    }
   };
 
   return (

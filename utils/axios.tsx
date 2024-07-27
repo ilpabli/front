@@ -60,6 +60,17 @@ export const getTicketsfiltered = async () => {
   }
 };
 
+export const getTicketspriority = async () => {
+  try {
+    const res = await axiosInstance.get(
+      "/tickets?ticket_status=Abierto&ticket_status=En%20proceso&priority=True"
+    );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const updateTicket = async (ticketId: any, data: any) => {
   try {
     const res = await axiosInstance.put(`/tickets/${ticketId}`, data);
@@ -78,8 +89,14 @@ export const deleteTicket = async (ticketId: any) => {
   }
 };
 
-export const getTechnicians = async () => {
+export const getTechnicians = async (time: any) => {
   try {
+    if (time) {
+      const res = await axiosInstance.get(
+        `/users/technicians?last_location_update=${time}`
+      );
+      return res.data;
+    }
     const res = await axiosInstance.get("/users/technicians");
     return res.data;
   } catch (error) {
@@ -109,9 +126,107 @@ export const refreshAssign = async (ticketId: number) => {
   }
 };
 
-export const getClients = async () => {
+export const createClient = async (data: any) => {
   try {
+    const res = await axiosInstance.post("/clients", data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getClients = async (page: any) => {
+  try {
+    if (page) {
+      const res = await axiosInstance.get(`/clients?page=${page}`);
+      return res.data;
+    }
     const res = await axiosInstance.get("/clients");
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getClient = async (clientId: any) => {
+  try {
+    const res = await axiosInstance.get(`/clients/${clientId}`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateClient = async (clientId: any, data: any) => {
+  try {
+    const res = await axiosInstance.put(`/clients/${clientId}`, data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteClient = async (jobNumber: any) => {
+  try {
+    const res = await axiosInstance.delete(`/clients/${jobNumber}`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createUser = async (data: any) => {
+  try {
+    const res = await axiosInstance.post("/users", data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUsers = async (page: any) => {
+  try {
+    if (page) {
+      const res = await axiosInstance.get(`/users?page=${page}`);
+      return res.data;
+    }
+    const res = await axiosInstance.get("/users");
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUser = async (userId: any) => {
+  try {
+    const res = await axiosInstance.get(`/users/${userId}`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteUser = async (user: any) => {
+  try {
+    const res = await axiosInstance.delete(`/users/${user}`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getProfile = async () => {
+  try {
+    const res = await axiosInstance.get(`/users/current`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const changePassword = async (data: any) => {
+  try {
+    const res = await axiosInstance.post(`/users/changepassword`, data);
     return res.data;
   } catch (error) {
     throw error;

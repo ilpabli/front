@@ -22,13 +22,15 @@ const TimeCounterComponent = ({ ticket }: any) => {
       const diffInHours = differenceInHours(gmtMinus3, date);
       if (diffInHours < 24) {
         const remainingMinutes = diffInMinutes % 60;
-        setTimeDisplay(`${diffInHours} hora y ${remainingMinutes} minutos`);
+        setTimeDisplay(
+          `${diffInHours} ${diffInHours > 1 ? "hs" : "hora"} y ${remainingMinutes} min`
+        );
       } else {
         const diffInDays = differenceInDays(gmtMinus3, date);
         const remainingHours = diffInHours % 24;
         const remainingMinutes = diffInMinutes % 60;
         setTimeDisplay(
-          `${diffInDays} dia ${remainingHours} hs y ${remainingMinutes} min`
+          `${diffInDays} ${diffInDays > 1 ? "días" : "día"} ${remainingHours} hs y ${remainingMinutes} min`
         );
       }
     }
