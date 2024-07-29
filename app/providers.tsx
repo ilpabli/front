@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/authContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { SocketProvider } from "@/contexts/socketContext";
+import { SessionProvider } from "next-auth/react";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -18,8 +19,10 @@ export interface ProvidersProps {
 export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
   const [queryClient] = React.useState(() => new QueryClient());
+  
 
   return (
+    <SessionProvider>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SocketProvider>
@@ -35,5 +38,6 @@ export function Providers({ children, themeProps }: ProvidersProps) {
         </SocketProvider>
       </AuthProvider>
     </QueryClientProvider>
+    </SessionProvider>
   );
 }

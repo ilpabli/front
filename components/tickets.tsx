@@ -18,9 +18,9 @@ import {
 import { RefreshIcon, EditIcon, DeleteIcon } from "./icons";
 import NextLink from "next/link";
 import { setTechnician, deleteTicket, refreshAssign } from "../utils/axios";
-import { useAuth } from "@/contexts/authContext";
 import TimeCounterComponent from "./timecounter";
 import DescriptionComponent from "./description";
+import { useSession } from "next-auth/react";
 import TechnicianComponent from "./technician";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -38,7 +38,7 @@ const TicketsComponent: React.FC<TicketsComponentProps> = ({
   setTime,
 }) => {
   const MySwal = withReactContent(Swal);
-  const { user } = useAuth();
+  const { data: session, status } = useSession();
   const assignTechnician = async (ticketId: number, assignedTo: string) => {
     try {
       setTechnician(ticketId, assignedTo);
@@ -248,7 +248,7 @@ const TicketsComponent: React.FC<TicketsComponentProps> = ({
                     </Button>
                   </span>
                 </Tooltip>
-                {user?.role === "admin" && (
+                {session?.user?.role === "admin" && (
                   <Tooltip color="danger" content="Borrar Ticket">
                     <span className="text-lg text-danger cursor-pointer active:opacity-50">
                       <Button

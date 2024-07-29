@@ -78,14 +78,14 @@ export default function Tickets() {
   return (
     <Table aria-label="Example static collection table">
       <TableHeader>
-        <TableColumn className="text-center">OBRA</TableColumn>
-        <TableColumn className="text-center">EQUIPO</TableColumn>
-        <TableColumn className="text-center">RECLAMO</TableColumn>
-        <TableColumn className="text-center">FECHA</TableColumn>
-        <TableColumn className="text-center">ESTADO</TableColumn>
-        <TableColumn className="text-center">TÉCNICO</TableColumn>
-        <TableColumn className="text-center">DESCRIPCIÓN</TableColumn>
-        <TableColumn className="text-center">SOLUCIÓN</TableColumn>
+        <TableColumn className="text-center text-white">OBRA</TableColumn>
+        <TableColumn className="text-center text-white">EQUIPO</TableColumn>
+        <TableColumn className="text-center text-white">RECLAMO</TableColumn>
+        <TableColumn className="text-center text-white">FECHA</TableColumn>
+        <TableColumn className="text-center text-white">ESTADO</TableColumn>
+        <TableColumn className="text-center text-white">TÉCNICO</TableColumn>
+        <TableColumn className="text-center text-white">DESCRIPCIÓN</TableColumn>
+        <TableColumn className="text-center text-white">SOLUCIÓN</TableColumn>
       </TableHeader>
       <TableBody className="text-center">
         {tickets.map((ticket) => (

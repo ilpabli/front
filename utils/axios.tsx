@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getSession, signOut } from "next-auth/react";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
@@ -8,15 +9,32 @@ const axiosInstance = axios.create({
   },
 });
 
+export const axiosLogin = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+axiosInstance.interceptors.request.use(async (config) => {
+  const session = await getSession();
+  if (session?.user?.token) {
+    config.headers.Authorization = `Bearer ${session.user.token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (
-      typeof window !== "undefined" &&
       error.response &&
       error.response.status === 401
     ) {
-      window.location.href = "/login";
+      signOut({ callbackUrl: "/login", redirect: true })
     }
     return Promise.reject(error);
   }

@@ -1,14 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input, Card, Button } from "@nextui-org/react";
-import { useAuth } from "@/contexts/authContext";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
+import { useRouter } from "next/navigation";
 
 function Signin() {
-  const [error, setError] = useState("");
-  const { login } = useAuth();
+  const [error, setError] = useState<String|undefined>("");
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -23,9 +24,24 @@ function Signin() {
     },
   });
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(undefined);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await login(data);
+      const res = await signIn("credentials", {
+        redirect: false,
+        user: data.user,
+        password: data.password,
+      })
+      if (res?.error) setError(res.error as string);
+      if (res?.ok) return router.push("/tickets");
     } catch (error: any) {
       setError(error.message);
     }

@@ -1,69 +1,59 @@
 import { NextResponse } from "next/server";
-import { decodeJwt } from "jose";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: any) {
-  const token = req.cookies.get("token");
   const { pathname } = req.nextUrl;
+
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  try {
-    const user = decodeJwt(token.value);
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-    const adminPaths = [
-      "/",
-      "/admin",
-      "/admin/*",
-      "/tickets",
-      "/tickets/*",
-      "/profile",
-      "/tickets/create",
-    ];
-    const supervisorPaths = ["/tickets", "/tickets/*", "/profile"];
-    const receptionistPaths = ["/tickets/create"];
-    const userPaths = ["/monitor", "/monitor/*"];
-    const technicianPaths = ["/monitor", "/monitor/*"];
-    const userRole = user.role;
-    const isAdminPath = adminPaths.some((path) => pathname.startsWith(path));
-    const isSupervisorPath = supervisorPaths.some((path) =>
-      pathname.startsWith(path)
-    );
-    const isReceptionistPath = receptionistPaths.some((path) =>
-      pathname.startsWith(path)
-    );
-    const isUserPath = userPaths.some((path) => pathname.startsWith(path));
-    const isTechnicianPath = technicianPaths.some((path) =>
-      pathname.startsWith(path)
-    );
-    if (userRole === "admin") {
+  const userRole = token.role as string;
+
+  const adminPaths = ["/", "/admin", "/admin/*", "/tickets", "/tickets/*", "/profile", "/tickets/create", "/map"];
+  const supervisorPaths = ["/tickets", "/tickets/*", "/profile", "/monitor", "/map"];
+  const receptionistPaths = ["/tickets/create", "/monitor"];
+  const userPaths = ["/monitor", "/monitor/*"];
+  const technicianPaths = ["/monitor", "/monitor/*"];
+
+  const isAdminPath = adminPaths.some((path) => pathname.startsWith(path));
+  const isSupervisorPath = supervisorPaths.some((path) => pathname.startsWith(path));
+  const isReceptionistPath = receptionistPaths.some((path) => pathname.startsWith(path));
+  const isUserPath = userPaths.some((path) => pathname.startsWith(path));
+  const isTechnicianPath = technicianPaths.some((path) => pathname.startsWith(path));
+
+  switch (userRole) {
+    case "admin":
       return NextResponse.next();
-    }
-
-    if (userRole === "supervisor" && !isSupervisorPath) {
-      return NextResponse.redirect(new URL("/unauthorized", req.url));
-    }
-
-    if (userRole === "receptionist" && !isReceptionistPath) {
-      return NextResponse.redirect(new URL("/unauthorized", req.url));
-    }
-
-    if (userRole === "user" && !isUserPath) {
-      return NextResponse.redirect(new URL("/monitor", req.url));
-    }
-
-    if (userRole === "technician" && !isTechnicianPath) {
-      return NextResponse.redirect(new URL("/monitor", req.url));
-    }
-    return NextResponse.next();
-  } catch (error) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    case "supervisor":
+      if (!isSupervisorPath) {
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
+      break;
+    case "receptionist":
+      if (!isReceptionistPath) {
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
+      break;
+    case "user":
+      if (!isUserPath) {
+        return NextResponse.redirect(new URL("/monitor", req.url));
+      }
+      break;
+    case "technician":
+      if (!isTechnicianPath) {
+        return NextResponse.redirect(new URL("/monitor", req.url));
+      }
+      break;
+    default:
+      return NextResponse.redirect(new URL("/login", req.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/tickets/:path*", "/profile"],
+  matcher: ["/", "/admin/:path*", "/tickets/:path*", "/profile", "/map", "/monitor/:path*"],
 };

@@ -18,17 +18,21 @@ import {
 import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
-import { useAuth } from "@/contexts/authContext";
+import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { Logo } from "@/components/icons";
 
 export const Navbar = () => {
+  const { data: session, status } = useSession();
   const path = usePathname();
   if (path === "/login") {
     return null;
   }
-  const { user, logout } = useAuth();
+  if (status === "unauthenticated") {
+    return null;
+  }
+  
   return (
     <NextUINavbar maxWidth="xl" position="sticky" className="pb-5">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -44,35 +48,31 @@ export const Navbar = () => {
       <NavbarContent className="hidden md:flex gap-4 mt-9 justify-center ml-20">
         <ul className="flex gap-4">
           {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
+            <NavbarItem key={item.href} isActive={path === item.href}>
               <NextLink
                 className={clsx(
                   linkStyles({
-                    color: "foreground",
+                    color: path === item.href ? "danger" : "foreground",
                     size: "lg",
                     isBlock: true,
                   }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
-                color="foreground"
                 href={item.href}
               >
                 {item.label}
               </NextLink>
             </NavbarItem>
           ))}
-          {user?.role === "admin" && (
-            <NavbarItem key="admin">
+          {session?.user?.role === "admin" && (
+            <NavbarItem key="admin" isActive={path === "/admin"}>
               <NextLink
                 className={clsx(
                   linkStyles({
-                    color: "foreground",
+                    color: path === "/admin" ? "danger" : "foreground",
                     size: "lg",
                     isBlock: true,
                   }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
-                color="foreground"
                 href="/admin"
               >
                 Admin
@@ -86,7 +86,7 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2 mt-9">
-          {user && (
+          {session?.user && (
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
                 <Avatar
@@ -94,9 +94,9 @@ export const Navbar = () => {
                   as="button"
                   className="transition-transform"
                   color="success"
-                  name={user?.user}
+                  name={session?.user?.user}
                   size="md"
-                  src={user?.img}
+                  src={session?.user?.img}
                 />
               </DropdownTrigger>
               <DropdownMenu aria-label="Profile Actions" variant="flat">
@@ -107,9 +107,9 @@ export const Navbar = () => {
                   textValue="profile"
                 >
                   <p className="font-semibold">
-                    {user?.first_name} {user?.last_name}
+                    {session?.user?.first_name} {session?.user?.last_name}
                   </p>
-                  <p className="font-semibold">Perfil: {user.role}</p>
+                  <p className="font-semibold">Perfil: {session?.user.role}</p>
                 </DropdownItem>
                 <DropdownItem key="notifications" textValue="notifications">
                   Notificaciones
@@ -117,7 +117,7 @@ export const Navbar = () => {
                 <DropdownItem
                   key="logout"
                   value="logout"
-                  onPress={() => logout()}
+                  onPress={() => signOut()}
                   color="danger"
                   textValue="logout"
                 >
@@ -145,7 +145,7 @@ export const Navbar = () => {
               </NextLink>
             </NavbarMenuItem>
           ))}
-          {user?.role === "admin" && (
+          {session?.user?.role === "admin" && (
             <NavbarMenuItem key="admin">
               <NextLink
                 className={clsx(
