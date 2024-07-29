@@ -473,3 +473,116 @@ export const PlusIcon = ({
     </g>
   </svg>
 );
+
+export const ChevronDown = ({fill, size, height, width, ...props}: any) => {
+  return (
+    <svg
+      fill="none"
+      height={size || height || 24}
+      viewBox="0 0 24 24"
+      width={size || width || 24}
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="m19.92 8.95-6.52 6.52c-.77.77-2.03.77-2.8 0L4.08 8.95"
+        stroke={fill}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeMiterlimit={10}
+        strokeWidth={1.5}
+      />
+    </svg>
+  );
+};
+
+export const TagUser = ({
+  fill = "currentColor",
+  size,
+  height,
+  width,
+  ...props
+}: any) => {
+  return (
+    <svg
+      fill="none"
+      height={size || height}
+      viewBox="0 0 24 24"
+      width={size || width}
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M18 18.86h-.76c-.8 0-1.56.31-2.12.87l-1.71 1.69c-.78.77-2.05.77-2.83 0l-1.71-1.69c-.56-.56-1.33-.87-2.12-.87H6c-1.66 0-3-1.33-3-2.97V4.98c0-1.64 1.34-2.97 3-2.97h12c1.66 0 3 1.33 3 2.97v10.91c0 1.63-1.34 2.97-3 2.97Z"
+        stroke={fill}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeMiterlimit={10}
+        strokeWidth={1.5}
+      />
+      <path
+        d="M12 10a2.33 2.33 0 1 0 0-4.66A2.33 2.33 0 0 0 12 10ZM16 15.66c0-1.8-1.79-3.26-4-3.26s-4 1.46-4 3.26"
+        stroke={fill}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+      />
+    </svg>
+  );
+};
+
+export const Building = ({ width = 30, height = 30, fill = "#000", ...props }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlSpace="preserve"
+    width={width}
+    height={height}
+    viewBox="0 0 256 256"
+    {...props}
+  >
+    <g
+      style={{
+        stroke: "none",
+        strokeWidth: 0,
+        strokeDasharray: "none",
+        strokeLinecap: "butt",
+        strokeLinejoin: "miter",
+        strokeMiterlimit: 10,
+        fill: "none",
+        fillRule: "nonzero",
+        opacity: 1,
+      }}
+    >
+      <path
+        d="M29.794 73.729H15.846V59.935h13.948v13.794zm-10.948-2.967h7.948v-7.86h-7.948v7.86zM74.794 73.729H60.847V59.935h13.947v13.794zm-10.947-2.967h7.947v-7.86h-7.947v7.86zM29.485 20.322H15.538V6.528h13.948v13.794zm-10.947-2.967h7.948v-7.86h-7.948v7.86zM47.485 20.322H33.538V6.528h13.948v13.794zm-10.947-2.967h7.948v-7.86h-7.948v7.86zM29.485 38.125H15.538V24.33h13.948v13.795zm-10.947-2.967h7.948v-7.86h-7.948v7.86zM47.485 38.125H33.538V24.33h13.948v13.795zm-10.947-2.967h7.948v-7.86h-7.948v7.86zM29.485 55.927H15.538V42.132h13.948v13.795zM18.538 52.96h7.948V45.1h-7.948v7.86zM47.485 55.927H33.538V42.132h13.948v13.795zM36.538 52.96h7.948V45.1h-7.948v7.86zM74.485 38.125H60.538V24.33h13.947v13.795zm-10.947-2.967h7.947v-7.86h-7.947v7.86zM74.485 55.927H60.538V42.132h13.947v13.795zM63.538 52.96h7.947V45.1h-7.947v7.86z"
+        style={{
+          stroke: "none",
+          strokeWidth: 1,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 10,
+          fill: fill,
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        transform="matrix(2.81 0 0 2.81 1.407 1.407)"
+      />
+      <path
+        d="M82.467 87.033V17.355H55.533V0h-48v87.033H2V90h86v-2.967h-5.533zm-3-66.711v66.711H55.533V20.322h23.934zM36.846 87.033V62.902h7.948v24.131h-7.948zm-3-27.098v27.098H10.533V2.967h42v84.066h-4.739V59.935H33.846z"
+        style={{
+          stroke: "none",
+          strokeWidth: 1,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 10,
+          fill: fill,
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        transform="matrix(2.81 0 0 2.81 1.407 1.407)"
+      />
+    </g>
+  </svg>
+);

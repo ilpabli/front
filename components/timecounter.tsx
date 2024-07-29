@@ -12,7 +12,7 @@ const TimeCounterComponent = ({ ticket }: any) => {
   const calculateTimeAgo = useCallback(() => {
     const now = new Date();
     const gmtMinus3 = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-    const date = parseISO(ticket.ticket_date);
+    const date = parseISO(ticket?.ticket_date);
 
     const diffInMinutes = differenceInMinutes(gmtMinus3, date);
 

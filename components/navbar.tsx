@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -7,8 +8,6 @@ import {
   NavbarItem,
   NavbarMenu,
   NavbarMenuItem,
-} from "@nextui-org/navbar";
-import {
   Dropdown,
   DropdownItem,
   DropdownTrigger,
@@ -21,7 +20,7 @@ import clsx from "clsx";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
-import { Logo } from "@/components/icons";
+import { Logo, ChevronDown, TagUser, Building} from "@/components/icons";
 
 export const Navbar = () => {
   const { data: session, status } = useSession();
@@ -32,7 +31,7 @@ export const Navbar = () => {
   if (status === "unauthenticated") {
     return null;
   }
-  
+
   return (
     <NextUINavbar maxWidth="xl" position="sticky" className="pb-5">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -64,20 +63,48 @@ export const Navbar = () => {
             </NavbarItem>
           ))}
           {session?.user?.role === "admin" && (
-            <NavbarItem key="admin" isActive={path === "/admin"}>
-              <NextLink
+            <Dropdown>
+          <NavbarItem key="/admin" isActive={path === "/admin/clients" || path === "/admin/users"}>
+            <DropdownTrigger>
+            <NextLink
                 className={clsx(
                   linkStyles({
-                    color: path === "/admin" ? "danger" : "foreground",
+                    color: path === "/admin/users" || path === "/admin/clients" ? "danger" : "foreground",
                     size: "lg",
                     isBlock: true,
                   }),
                 )}
-                href="/admin"
+                href="#"
               >
-                Admin
+                Admin <ChevronDown fill="currentColor" size={20} />
               </NextLink>
-            </NavbarItem>
+            </DropdownTrigger>
+          </NavbarItem>
+          <DropdownMenu
+            aria-label="Admin"
+            className="w-[340px]"
+            itemClasses={{
+              base: "gap-4",
+            }}
+          >
+            <DropdownItem
+              key="Usuarios"
+              description="Manager de usuarios."
+              href="/admin/users"
+              startContent={<TagUser fill="green" size={30} />}
+            >
+              Usuarios
+            </DropdownItem>
+            <DropdownItem
+              key="Clients"
+              description="Manager de clientes."
+              href="/admin/clients"
+              startContent={<Building fill="yellow" width={30} height={30} />}
+            >
+              Clientes
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
           )}
         </ul>
       </NavbarContent>
@@ -158,6 +185,7 @@ export const Navbar = () => {
                 Admin
               </NextLink>
             </NavbarMenuItem>
+            
           )}
         </NavbarMenu>
       </NavbarContent>

@@ -6,17 +6,24 @@ export async function middleware(req: any) {
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
+  if (token && pathname === "/login") {
+    return NextResponse.redirect(new URL("/monitor", req.url));
+  }
+
   if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    if (pathname !== "/login") {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    return NextResponse.next();
   }
 
   const userRole = token.role as string;
 
   const adminPaths = ["/", "/admin", "/admin/*", "/tickets", "/tickets/*", "/profile", "/tickets/create", "/map"];
   const supervisorPaths = ["/tickets", "/tickets/*", "/profile", "/monitor", "/map"];
-  const receptionistPaths = ["/tickets/create", "/monitor"];
-  const userPaths = ["/monitor", "/monitor/*"];
-  const technicianPaths = ["/monitor", "/monitor/*"];
+  const receptionistPaths = ["/tickets/create", "/monitor","/profile"];
+  const userPaths = ["/monitor", "/monitor/*", "/profile"];
+  const technicianPaths = ["/monitor", "/monitor/*","/profile"];
 
   const isAdminPath = adminPaths.some((path) => pathname.startsWith(path));
   const isSupervisorPath = supervisorPaths.some((path) => pathname.startsWith(path));
@@ -55,5 +62,5 @@ export async function middleware(req: any) {
 }
 
 export const config = {
-  matcher: ["/", "/admin/:path*", "/tickets/:path*", "/profile", "/map", "/monitor/:path*"],
+  matcher: ["/","/login", "/admin/:path*", "/tickets/:path*", "/profile", "/map", "/monitor/:path*"],
 };
