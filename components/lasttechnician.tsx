@@ -31,7 +31,7 @@ const LastTechnicianComponent = ({ tickets }: any) => {
     }
   }, [tickets]);
   if (!lastTechnician) {
-    return;
+    return null;
   }
   return <div>Ultima asignación: {lastTechnician?.assigned_to?.user}</div>;
 };
