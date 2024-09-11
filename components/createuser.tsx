@@ -5,8 +5,8 @@ import { createUser } from "@/utils/axios";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useForm, Controller } from "react-hook-form";
-import Link from "next/link";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "./icons";
+import { useRouter } from "next/navigation";
 
 const CreateUserComponent = () => {
   const [error, setError] = useState<string | undefined>();
@@ -14,6 +14,7 @@ const CreateUserComponent = () => {
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [role, setRole] = useState(new Set<string>());
+  const router = useRouter();
 
   useEffect(() => {
     if (error) {
@@ -38,8 +39,13 @@ const CreateUserComponent = () => {
       password: "",
       email: "",
       role: "",
+      img: "",
     },
   });
+
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -63,7 +69,7 @@ const CreateUserComponent = () => {
   });
 
   return (
-    <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
+    <div className="justify-center flex items-center">
       <Card className="bg-neutral-950 px-8 py-10">
         <form onSubmit={onSubmit} className="flex flex-col items-center">
           {error && (
@@ -109,7 +115,6 @@ const CreateUserComponent = () => {
             className="max-w-xs mb-2"
           />
           <Input
-            isRequired
             type="email"
             label="Correo electronico"
             placeholder="******"
@@ -145,6 +150,19 @@ const CreateUserComponent = () => {
             )}
           />
           <Input
+            isRequired
+            type="text"
+            label="Avatar"
+            placeholder="Url de foto"
+            {...register("img", {
+              required: "Debes ingresar la url de la foto.",
+            })}
+            errorMessage={errors?.img?.message}
+            isInvalid={!!errors.img?.message}
+            className="max-w-xs mb-2"
+          />
+          <Input
+            isRequired
             label="Password"
             placeholder="******"
             endContent={
@@ -178,16 +196,17 @@ const CreateUserComponent = () => {
             Generar
           </Button>
         </form>
-        <Link href="/admin/users" className="flex justify-center">
+        <div className="flex justify-center">
           <Button
             type="submit"
             color="primary"
             variant="shadow"
             className="max-w-xs"
+            onPress={() => handleItemClick(`/admin/users`)}
           >
             Atras
           </Button>
-        </Link>
+        </div>
       </Card>
     </div>
   );

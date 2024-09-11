@@ -17,24 +17,24 @@ export const axiosLogin = axios.create({
   },
 });
 
-axiosInstance.interceptors.request.use(async (config) => {
-  const session = await getSession();
-  if (session?.user?.token) {
-    config.headers.Authorization = `Bearer ${session.user.token}`;
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    const session = await getSession();
+    if (session?.user?.token) {
+      config.headers.Authorization = `Bearer ${session.user.token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+);
 
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (
-      error.response &&
-      error.response.status === 401
-    ) {
-      signOut({ callbackUrl: "/login", redirect: true })
+    if (error.response && error.response.status === 401) {
+      signOut({ callbackUrl: "/login", redirect: true });
     }
     return Promise.reject(error);
   }
@@ -43,6 +43,15 @@ axiosInstance.interceptors.response.use(
 export const createTicket = async (data: any) => {
   try {
     const res = await axiosInstance.post("/tickets", data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addNote = async (ticketId: any, data: any) => {
+  try {
+    const res = await axiosInstance.post(`/tickets/notes/${ticketId}`, data);
     return res.data;
   } catch (error) {
     throw error;
@@ -89,6 +98,15 @@ export const getTicketspriority = async () => {
   }
 };
 
+export const getTicketsforSearch = async (filter: any) => {
+  try {
+    const res = await axiosInstance.get("/tickets/search", filter);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const updateTicket = async (ticketId: any, data: any) => {
   try {
     const res = await axiosInstance.put(`/tickets/${ticketId}`, data);
@@ -109,7 +127,7 @@ export const deleteTicket = async (ticketId: any) => {
 
 export const getTechnicians = async (time: any) => {
   try {
-    if (time) {
+    if (typeof time === "number") {
       const res = await axiosInstance.get(
         `/users/technicians?last_location_update=${time}`
       );
@@ -153,13 +171,26 @@ export const createClient = async (data: any) => {
   }
 };
 
-export const getClients = async (page: any) => {
+export const getClientsPaginate = async (page: any, query: any) => {
   try {
+    if (query) {
+      const res = await axiosInstance.get(`/clients?job_name=${query}`);
+      return res.data;
+    }
     if (page) {
       const res = await axiosInstance.get(`/clients?page=${page}`);
       return res.data;
     }
     const res = await axiosInstance.get("/clients");
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getClients = async () => {
+  try {
+    const res = await axiosInstance.get("/clients?full=true");
     return res.data;
   } catch (error) {
     throw error;
@@ -202,8 +233,12 @@ export const createUser = async (data: any) => {
   }
 };
 
-export const getUsers = async (page: any) => {
+export const getUsers = async (page: any, query: any) => {
   try {
+    if (query) {
+      const res = await axiosInstance.get(`/users?first_name=${query}`);
+      return res.data;
+    }
     if (page) {
       const res = await axiosInstance.get(`/users?page=${page}`);
       return res.data;
@@ -245,6 +280,15 @@ export const getProfile = async () => {
 export const changePassword = async (data: any) => {
   try {
     const res = await axiosInstance.post(`/users/changepassword`, data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const resetPassword = async (data: any) => {
+  try {
+    const res = await axiosInstance.post(`/users/resetpassword`, data);
     return res.data;
   } catch (error) {
     throw error;

@@ -11,23 +11,34 @@ import {
   Input,
   Pagination,
 } from "@nextui-org/react";
-import Link from "next/link";
 import { EditIcon, DeleteIcon, SearchIcon, PlusIcon } from "./icons";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { deleteClient } from "@/utils/axios";
+import { useRouter } from "next/navigation";
 
-const ClientsComponent = ({ clients, handleSetPage }: any) => {
+const ClientsComponent = ({
+  clients,
+  handleSetPage,
+  handleSearchQuery,
+}: any) => {
   const MySwal = withReactContent(Swal);
+  const router = useRouter();
   const [filterValue, setFilterValue] = React.useState("");
 
   const onSearchChange = React.useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
+      handleSearchQuery(value);
     } else {
       setFilterValue("");
+      handleSearchQuery(null);
     }
   }, []);
+
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
 
   const onClear = React.useCallback(() => {
     setFilterValue("");
@@ -53,17 +64,20 @@ const ClientsComponent = ({ clients, handleSetPage }: any) => {
         <Input
           isClearable
           className="w-full sm:max-w-[15%]"
-          placeholder="Numero de obra"
+          placeholder="Buscar por cliente"
           startContent={<SearchIcon />}
           value={filterValue}
           onClear={() => onClear()}
           onValueChange={onSearchChange}
         />
-        <Link href={`/admin/clients/create`}>
-          <Button color="primary" variant="shadow" endContent={<PlusIcon />}>
-            Añadir Cliente
-          </Button>
-        </Link>
+        <Button
+          color="primary"
+          variant="shadow"
+          endContent={<PlusIcon size={24} />}
+          onPress={() => handleItemClick(`/admin/clients/create`)}
+        >
+          Añadir Cliente
+        </Button>
       </div>
       <div>
         <span className="text-default-400 text-small">
@@ -99,10 +113,11 @@ const ClientsComponent = ({ clients, handleSetPage }: any) => {
                       variant="shadow"
                       isIconOnly
                       color="success"
+                      onPress={() =>
+                        handleItemClick(`/admin/clients/${client?.job_number}`)
+                      }
                     >
-                      <Link href={`/admin/clients/${client?.job_number}`}>
-                        <EditIcon />
-                      </Link>
+                      <EditIcon />
                     </Button>
                   </span>
                 </Tooltip>
@@ -124,17 +139,20 @@ const ClientsComponent = ({ clients, handleSetPage }: any) => {
           ))}
         </TableBody>
       </Table>
-      <div className="py-2 px-2 flex justify-center">
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          page={clients?.page}
-          total={clients?.totalPages}
-          onChange={(page) => handleSetPage(page)}
-        />
-      </div>
+      {clients?.totalDocs > 1 && (
+        <div className="py-2 px-2 flex justify-center">
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            loop={true}
+            color="primary"
+            page={clients?.page}
+            total={clients?.totalPages}
+            onChange={(page) => handleSetPage(page)}
+          />
+        </div>
+      )}
     </div>
   );
 };

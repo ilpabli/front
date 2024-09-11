@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -8,12 +8,15 @@ import {
   TableRow,
   TableCell,
   Button,
+  Pagination,
 } from "@nextui-org/react";
 import { DangerIcon } from "@/components/icons";
 import { useSocket } from "@/contexts/socketContext";
 import TimeCounterComponent from "@/components/timecounter";
 import TechnicianComponent from "@/components/technician";
 import LoadingComponent from "@/components/loading";
+import { useSession } from "next-auth/react";
+import FsComponent from "@/components/fstoinservice";
 
 export default function Tickets() {
   interface Ticket {
@@ -33,6 +36,8 @@ export default function Tickets() {
     priority: string;
   }
 
+  const { data: session } = useSession();
+
   function getStatusClass(status: string) {
     switch (status) {
       case "Abierto":
@@ -46,6 +51,7 @@ export default function Tickets() {
     }
   }
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [page, setPage] = useState(1);
   const { socket } = useSocket();
 
   useEffect(() => {
@@ -68,6 +74,25 @@ export default function Tickets() {
     };
   }, [socket]);
 
+  const rowsPerPage = 8;
+  const pages = Math.ceil(tickets.length / rowsPerPage);
+  const ticketsFiltered = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return tickets.slice(start, end);
+  }, [page, tickets]);
+
+  useEffect(() => {
+    if (pages > 1) {
+      const interval = setInterval(() => {
+        setPage((prevPage) => (prevPage < pages ? prevPage + 1 : 1));
+      }, 10000);
+
+      return () => clearInterval(interval);
+    }
+  }, [pages]);
+
   if (!tickets)
     return (
       <div>
@@ -76,62 +101,88 @@ export default function Tickets() {
     );
 
   return (
-    <Table aria-label="Example static collection table">
-      <TableHeader>
-        <TableColumn className="text-center text-white">OBRA</TableColumn>
-        <TableColumn className="text-center text-white">EQUIPO</TableColumn>
-        <TableColumn className="text-center text-white">RECLAMO</TableColumn>
-        <TableColumn className="text-center text-white">FECHA</TableColumn>
-        <TableColumn className="text-center text-white">ESTADO</TableColumn>
-        <TableColumn className="text-center text-white">TÉCNICO</TableColumn>
-        <TableColumn className="text-center text-white">DESCRIPCIÓN</TableColumn>
-        <TableColumn className="text-center text-white">SOLUCIÓN</TableColumn>
-      </TableHeader>
-      <TableBody className="text-center">
-        {tickets.map((ticket) => (
-          <TableRow key={ticket?.ticket_id}>
-            <TableCell className="text-center">{`${ticket?.job_data.job_number} - ${ticket?.job_data.job_name}`}</TableCell>
-            <TableCell className="text-center">
-              {ticket?.ele_esc} # {ticket?.number_ele_esc}
-            </TableCell>
-            <TableCell className="text-center">
-              <div>#{ticket?.ticket_id}</div>
-              <div
-                className={`text-center ${getStatusClass(ticket?.ticket_status)}`}
-              >
-                {ticket?.ticket_status}
-              </div>
-            </TableCell>
-            <TableCell className="text-center">
-              {ticket?.ticket_createdAt}
-              <TimeCounterComponent ticket={ticket} />
-            </TableCell>
-            <TableCell className="text-center">
-              <Button color="danger" startContent={<DangerIcon />}>
-                <div className="text-white font-bold">
-                  {ticket?.status_ele_esc}
-                  {ticket?.priority &&
-                    (ticket?.ticket_status === "Abierto" ||
-                      ticket?.ticket_status === "En proceso") && (
-                      <div className="text-white font-bold animate-pulse">
-                        {ticket?.priority}
-                      </div>
-                    )}
+    <div>
+      <Table aria-label="Monitor Table">
+        <TableHeader>
+          <TableColumn className="text-center text-white">OBRA</TableColumn>
+          <TableColumn className="text-center text-white">EQUIPO</TableColumn>
+          <TableColumn className="text-center text-white">RECLAMO</TableColumn>
+          <TableColumn className="text-center text-white">FECHA</TableColumn>
+          <TableColumn className="text-center text-white">ESTADO</TableColumn>
+          <TableColumn className="text-center text-white">TÉCNICO</TableColumn>
+          <TableColumn className="text-center text-white">
+            DESCRIPCIÓN
+          </TableColumn>
+          <TableColumn className="text-center text-white">SOLUCIÓN</TableColumn>
+        </TableHeader>
+        <TableBody className="text-center">
+          {ticketsFiltered.map((ticket) => (
+            <TableRow key={ticket?.ticket_id}>
+              <TableCell className="text-center">{`${ticket?.job_data.job_number} - ${ticket?.job_data.job_name}`}</TableCell>
+              <TableCell className="text-center">
+                {ticket?.ele_esc} # {ticket?.number_ele_esc}
+              </TableCell>
+              <TableCell className="text-center">
+                <div>#{ticket?.ticket_id}</div>
+                <div
+                  className={`text-center ${getStatusClass(ticket?.ticket_status)}`}
+                >
+                  {ticket?.ticket_status}
                 </div>
-              </Button>
-            </TableCell>
-            <TableCell className="text-center">
-              {ticket?.assigned_to ? (
-                <TechnicianComponent assigned_to={ticket?.assigned_to} />
-              ) : (
-                "Sin Asignar"
-              )}
-            </TableCell>
-            <TableCell className="text-center">{ticket?.description}</TableCell>
-            <TableCell className="text-center">{ticket?.solution}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              </TableCell>
+              <TableCell className="text-center">
+                {ticket?.ticket_createdAt}
+                <TimeCounterComponent ticket={ticket} />
+              </TableCell>
+              <TableCell className="text-center">
+                {session?.user?.role === "admin" ||
+                session?.user?.role === "supervisor" ? (
+                  <FsComponent ticket={ticket} />
+                ) : (
+                  <Button color="danger" startContent={<DangerIcon />}>
+                    <div className="text-white font-bold">
+                      {ticket?.status_ele_esc}
+                      {ticket?.priority &&
+                        (ticket?.ticket_status === "Abierto" ||
+                          ticket?.ticket_status === "En proceso") && (
+                          <div className="text-white font-bold animate-pulse">
+                            {ticket?.priority}
+                          </div>
+                        )}
+                    </div>
+                  </Button>
+                )}
+              </TableCell>
+              <TableCell className="text-center">
+                {ticket?.assigned_to ? (
+                  <TechnicianComponent assigned_to={ticket?.assigned_to} />
+                ) : (
+                  "Sin Asignar"
+                )}
+              </TableCell>
+              <TableCell className="text-center">
+                {ticket?.description}
+              </TableCell>
+              <TableCell className="text-center">{ticket?.solution}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {pages > 1 && (
+        <div className="py-2 px-2 flex justify-center">
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            initialPage={1}
+            loop={true}
+            color="danger"
+            page={page}
+            total={pages}
+            onChange={(page) => setPage(page)}
+          />
+        </div>
+      )}
+    </div>
   );
 }

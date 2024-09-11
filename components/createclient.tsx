@@ -5,11 +5,12 @@ import { createClient } from "@/utils/axios";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useForm } from "react-hook-form";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const CreateClientComponent = () => {
   const [error, setError] = useState<string | undefined>();
   const MySwal = withReactContent(Swal);
+  const router = useRouter();
 
   useEffect(() => {
     if (error) {
@@ -34,6 +35,10 @@ const CreateClientComponent = () => {
     },
   });
 
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       const signupResponse = await createClient(data);
@@ -55,7 +60,7 @@ const CreateClientComponent = () => {
   });
 
   return (
-    <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
+    <div className="justify-center flex items-center">
       <Card className="bg-neutral-950 px-8 py-10">
         <form onSubmit={onSubmit} className="flex flex-col items-center">
           {error && (
@@ -137,16 +142,17 @@ const CreateClientComponent = () => {
             Generar
           </Button>
         </form>
-        <Link href="/admin/clients" className="flex justify-center">
+        <div className="flex justify-center">
           <Button
             type="submit"
             color="primary"
             variant="shadow"
             className="max-w-xs"
+            onPress={() => handleItemClick(`/admin/clients`)}
           >
             Atras
           </Button>
-        </Link>
+        </div>
       </Card>
     </div>
   );

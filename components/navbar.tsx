@@ -20,9 +20,11 @@ import clsx from "clsx";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
-import { Logo, ChevronDown, TagUser, Building} from "@/components/icons";
+import { Logo, ChevronDown, TagUser, Building } from "@/components/icons";
+import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const path = usePathname();
   if (path === "/login") {
@@ -32,8 +34,12 @@ export const Navbar = () => {
     return null;
   }
 
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
+
   return (
-    <NextUINavbar maxWidth="xl" position="sticky" className="pb-5">
+    <NextUINavbar maxWidth="full" position="sticky" className="pb-5">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink
@@ -54,7 +60,7 @@ export const Navbar = () => {
                     color: path === item.href ? "danger" : "foreground",
                     size: "lg",
                     isBlock: true,
-                  }),
+                  })
                 )}
                 href={item.href}
               >
@@ -64,47 +70,55 @@ export const Navbar = () => {
           ))}
           {session?.user?.role === "admin" && (
             <Dropdown>
-          <NavbarItem key="/admin" isActive={path === "/admin/clients" || path === "/admin/users"}>
-            <DropdownTrigger>
-            <NextLink
-                className={clsx(
-                  linkStyles({
-                    color: path === "/admin/users" || path === "/admin/clients" ? "danger" : "foreground",
-                    size: "lg",
-                    isBlock: true,
-                  }),
-                )}
-                href="#"
+              <NavbarItem
+                key="/admin"
+                isActive={path === "/admin/clients" || path === "/admin/users"}
               >
-                Admin <ChevronDown fill="currentColor" size={20} />
-              </NextLink>
-            </DropdownTrigger>
-          </NavbarItem>
-          <DropdownMenu
-            aria-label="Admin"
-            className="w-[340px]"
-            itemClasses={{
-              base: "gap-4",
-            }}
-          >
-            <DropdownItem
-              key="Usuarios"
-              description="Manager de usuarios."
-              href="/admin/users"
-              startContent={<TagUser fill="green" size={30} />}
-            >
-              Usuarios
-            </DropdownItem>
-            <DropdownItem
-              key="Clients"
-              description="Manager de clientes."
-              href="/admin/clients"
-              startContent={<Building fill="yellow" width={30} height={30} />}
-            >
-              Clientes
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+                <DropdownTrigger>
+                  <NextLink
+                    className={clsx(
+                      linkStyles({
+                        color:
+                          path === "/admin/users" || path === "/admin/clients"
+                            ? "danger"
+                            : "foreground",
+                        size: "lg",
+                        isBlock: true,
+                      })
+                    )}
+                    href=""
+                  >
+                    Admin <ChevronDown fill="currentColor" size={20} />
+                  </NextLink>
+                </DropdownTrigger>
+              </NavbarItem>
+              <DropdownMenu
+                aria-label="Admin"
+                className="w-[340px]"
+                itemClasses={{
+                  base: "gap-4",
+                }}
+              >
+                <DropdownItem
+                  key="Usuarios"
+                  description="Manager de usuarios."
+                  startContent={<TagUser fill="green" size={30} />}
+                  onPress={() => handleItemClick("/admin/users")}
+                >
+                  Usuarios
+                </DropdownItem>
+                <DropdownItem
+                  key="Clients"
+                  description="Manager de clientes."
+                  startContent={
+                    <Building fill="yellow" width={30} height={30} />
+                  }
+                  onPress={() => handleItemClick("/admin/clients")}
+                >
+                  Clientes
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           )}
         </ul>
       </NavbarContent>
@@ -130,16 +144,16 @@ export const Navbar = () => {
                 <DropdownItem
                   key="profile"
                   className="h-14 gap-2"
-                  href="/profile"
                   textValue="profile"
                 >
-                  <p className="font-semibold">
-                    {session?.user?.first_name} {session?.user?.last_name}
-                  </p>
-                  <p className="font-semibold">Perfil: {session?.user.role}</p>
-                </DropdownItem>
-                <DropdownItem key="notifications" textValue="notifications">
-                  Notificaciones
+                  <NextLink href="/profile">
+                    <p className="font-semibold">
+                      {session?.user?.first_name} {session?.user?.last_name}
+                    </p>
+                    <p className="font-semibold">
+                      Perfil: {session?.user.role}
+                    </p>
+                  </NextLink>
                 </DropdownItem>
                 <DropdownItem
                   key="logout"
@@ -185,7 +199,6 @@ export const Navbar = () => {
                 Admin
               </NextLink>
             </NavbarMenuItem>
-            
           )}
         </NavbarMenu>
       </NavbarContent>

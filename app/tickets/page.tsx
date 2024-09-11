@@ -9,7 +9,9 @@ import { useSocket } from "@/contexts/socketContext";
 export default function Tickets() {
   const queryClient = useQueryClient();
   const { socket } = useSocket();
-  const [activeTechnicians, setActiveTechnicians] = useState(undefined);
+  const [activeTechnicians, setActiveTechnicians] = useState<
+    Number | undefined
+  >(undefined);
 
   useEffect(() => {
     if (socket) {
@@ -19,7 +21,6 @@ export default function Tickets() {
           refetchType: "active",
         });
       });
-      socket.on("priorityAlert", (data) => {});
     }
     return () => {
       if (socket) {
@@ -37,7 +38,7 @@ export default function Tickets() {
     queryKey: ["tickets"],
     queryFn: getTicketsfiltered,
     refetchOnWindowFocus: false,
-    staleTime: 10 * 60 * 1000,
+    staleTime: 1 * 60 * 1000,
   });
 
   const {

@@ -12,7 +12,7 @@ function TicketCreate() {
     error,
   } = useQuery({
     queryKey: ["clients"],
-    queryFn: () => getClients(undefined),
+    queryFn: () => getClients(),
     refetchOnWindowFocus: false,
     staleTime: 60 * 60 * 1000,
   });

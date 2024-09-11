@@ -11,6 +11,7 @@ import {
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import { updateTicket } from "@/utils/axios";
+import { useRouter } from "next/navigation";
 
 const ModifyticketComponent = ({ ticket, ticketId }: any) => {
   const {
@@ -19,6 +20,7 @@ const ModifyticketComponent = ({ ticket, ticketId }: any) => {
     setValue,
     formState: { errors },
   } = useForm();
+  const router = useRouter();
 
   const [error, setError] = useState<string | undefined>();
 
@@ -33,6 +35,10 @@ const ModifyticketComponent = ({ ticket, ticketId }: any) => {
       setValue("rt", ticket.rt);
     }
   }, [ticket, setValue]);
+
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -49,7 +55,7 @@ const ModifyticketComponent = ({ ticket, ticketId }: any) => {
   });
 
   return (
-    <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
+    <div className="justify-center flex items-center">
       {ticket.ticket_id && (
         <Card className="bg-neutral-950 px-8 py-10">
           <form onSubmit={onSubmit} className="flex flex-col items-center">
@@ -127,11 +133,16 @@ const ModifyticketComponent = ({ ticket, ticketId }: any) => {
               Guardar
             </Button>
           </form>
-          <NextLink href="/tickets" className="px-20">
-            <Button color="primary" className="max-w-xs mt-2" variant="shadow">
+          <div className="flex justify-center">
+            <Button
+              color="primary"
+              className="max-w-xs mt-2"
+              variant="shadow"
+              onPress={() => handleItemClick(`/tickets`)}
+            >
               Atras
             </Button>
-          </NextLink>
+          </div>
         </Card>
       )}
     </div>

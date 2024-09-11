@@ -32,6 +32,13 @@ export default function DescriptionComponent({ ticket }: any) {
               <ModalBody>
                 <p>Contacto: {ticket?.contact}</p>
                 <p>Descripción: {ticket.description}</p>
+                {ticket?.ec && <p key={ticket?.ec}>E/C: {ticket?.ec}</p>}
+                {ticket?.notes &&
+                  ticket.notes.map((note: any, index: any) => (
+                    <p key={index}>
+                      Nota{index + 1}: {note}
+                    </p>
+                  ))}
               </ModalBody>
               <ModalFooter>
                 <Button

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -12,24 +12,37 @@ import {
   Input,
   Pagination,
 } from "@nextui-org/react";
-import Link from "next/link";
 import UserComponent from "@/components/user";
-import { EditIcon, DeleteIcon, SearchIcon, PlusIcon } from "./icons";
+import {
+  EditIcon,
+  DeleteIcon,
+  SearchIcon,
+  PlusIcon,
+  RefreshIcon,
+} from "./icons";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { deleteUser } from "@/utils/axios";
+import { deleteUser, resetPassword } from "@/utils/axios";
+import { useRouter } from "next/navigation";
 
-const UsersComponent = ({ users, handleSetPage }: any) => {
+const UsersComponent = ({ users, handleSetPage, handleSearchQuery }: any) => {
+  const router = useRouter();
   const MySwal = withReactContent(Swal);
-  const [filterValue, setFilterValue] = React.useState("");
+  const [filterValue, setFilterValue] = useState("");
 
   const onSearchChange = React.useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
+      handleSearchQuery(value);
     } else {
       setFilterValue("");
+      handleSearchQuery(null);
     }
   }, []);
+
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
 
   const onClear = React.useCallback(() => {
     setFilterValue("");
@@ -48,6 +61,21 @@ const UsersComponent = ({ users, handleSetPage }: any) => {
       }
     });
   };
+
+  const handleReset = (user: any) => {
+    MySwal.fire({
+      title: `Se restablecera la password a ${user.user}`,
+      showCancelButton: true,
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resetPassword(user);
+        MySwal.fire(`Se ha restablecido la password a ${user.user}`);
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-start">
@@ -60,15 +88,18 @@ const UsersComponent = ({ users, handleSetPage }: any) => {
           onClear={() => onClear()}
           onValueChange={onSearchChange}
         />
-        <Link href={`/admin/users/create`}>
-          <Button color="primary" variant="shadow" endContent={<PlusIcon />}>
-            Añadir Usuario
-          </Button>
-        </Link>
+        <Button
+          color="primary"
+          variant="shadow"
+          endContent={<PlusIcon size={24} />}
+          onPress={() => handleItemClick(`/admin/users/create`)}
+        >
+          Añadir Usuario
+        </Button>
       </div>
       <div>
         <span className="text-default-400 text-small">
-          Total de usuarios: {users.totalDocs}
+          Total de usuarios: {users?.totalDocs}
         </span>
       </div>
       <Table aria-label="Users">
@@ -83,7 +114,7 @@ const UsersComponent = ({ users, handleSetPage }: any) => {
         <TableBody>
           {users?.docs.map((user: any) => (
             <TableRow key={user?._id}>
-              <TableCell className="text-center">
+              <TableCell className="flex justify-center">
                 <UserComponent user={user} />
               </TableCell>
               <TableCell className="text-center">{user?.user}</TableCell>
@@ -93,6 +124,23 @@ const UsersComponent = ({ users, handleSetPage }: any) => {
                 {user?.last_connection}
               </TableCell>
               <TableCell className="text-center justify-center flex">
+                <Tooltip
+                  color="warning"
+                  content="Resetear Password"
+                  className="text-white"
+                >
+                  <span className="text-lg text-warning cursor-pointer active:opacity-50">
+                    <Button
+                      size="sm"
+                      variant="shadow"
+                      isIconOnly
+                      color="warning"
+                      onPress={() => handleReset({ user: user?.user })}
+                    >
+                      <RefreshIcon />
+                    </Button>
+                  </span>
+                </Tooltip>
                 <Tooltip
                   color="success"
                   content="Editar Usuario"
@@ -104,10 +152,11 @@ const UsersComponent = ({ users, handleSetPage }: any) => {
                       variant="shadow"
                       isIconOnly
                       color="success"
+                      onPress={() =>
+                        handleItemClick(`/admin/users/${user?.user}`)
+                      }
                     >
-                      <Link href={`/admin/users/${user?.user}`}>
-                        <EditIcon />
-                      </Link>
+                      <EditIcon />
                     </Button>
                   </span>
                 </Tooltip>
@@ -129,17 +178,20 @@ const UsersComponent = ({ users, handleSetPage }: any) => {
           ))}
         </TableBody>
       </Table>
-      <div className="py-2 px-2 flex justify-center">
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          page={users?.page}
-          total={users.totalPages}
-          onChange={(page) => handleSetPage(page)}
-        />
-      </div>
+      {users?.totalDocs > 1 && (
+        <div className="py-2 px-2 flex justify-center">
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            loop={true}
+            color="primary"
+            page={users?.page}
+            total={users?.totalPages}
+            onChange={(page) => handleSetPage(page)}
+          />
+        </div>
+      )}
     </div>
   );
 };

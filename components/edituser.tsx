@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Input, Card, Button, Select, SelectItem } from "@nextui-org/react";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { updateClient } from "@/utils/axios";
+import { useRouter } from "next/navigation";
 
 const EditUserComponent = ({ user, userId }: any) => {
   const [error, setError] = useState<string | undefined>();
   const MySwal = withReactContent(Swal);
+  const router = useRouter();
 
   const {
     register,
@@ -26,6 +27,10 @@ const EditUserComponent = ({ user, userId }: any) => {
       setValue("role", user?.role);
     }
   }, [user, setValue]);
+
+  const handleItemClick = (path: any) => {
+    router.push(path);
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -50,7 +55,7 @@ const EditUserComponent = ({ user, userId }: any) => {
   });
 
   return (
-    <div className="justify-center h-[calc(100vh-4rem)] flex items-center">
+    <div className="justify-center flex items-center">
       {user?.user && (
         <Card className="bg-neutral-950 px-8 py-10">
           <form onSubmit={onSubmit} className="flex flex-col items-center">
@@ -105,16 +110,17 @@ const EditUserComponent = ({ user, userId }: any) => {
               Guardar
             </Button>
           </form>
-          <Link href="/admin/users" className="flex justify-center">
+          <div className="flex justify-center">
             <Button
               type="submit"
               color="primary"
               variant="shadow"
-              className="max-w-xs mt-2"
+              className="max-w-xs"
+              onPress={() => handleItemClick(`/admin/users`)}
             >
               Atras
             </Button>
-          </Link>
+          </div>
         </Card>
       )}
     </div>

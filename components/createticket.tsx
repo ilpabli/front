@@ -99,7 +99,7 @@ const CreateTicketComponent: React.FC<CreateTicketComponent> = ({
   };
 
   return (
-    <div className="justify-center h-[calc(80vh-4rem)] flex items-center">
+    <div className="justify-center flex items-center">
       <Card className="bg-neutral-950 px-8 py-10">
         <form onSubmit={onSubmit} className="flex flex-col items-center">
           {error && (
@@ -120,20 +120,21 @@ const CreateTicketComponent: React.FC<CreateTicketComponent> = ({
                 placeholder="Seleccione"
                 selectionMode="single"
                 className="max-w-xs mb-2"
+                items={clients}
                 selectedKeys={jobDataValue}
                 onSelectionChange={(keys) => {
-                  const selectedValue = Array.from(keys as Set<string>)[0];
-                  setJobDataValue(new Set([selectedValue]));
-                  field.onChange(selectedValue);
+                  const selectedJobNumber = Array.from(keys as Set<string>)[0];
+                  setJobDataValue(new Set([selectedJobNumber]));
+                  field.onChange(selectedJobNumber);
                 }}
                 errorMessage={errors?.job_data?.message}
                 isInvalid={!!errors.job_data?.message}
               >
-                {clients?.map((job: any) => (
+                {(job: any) => (
                   <SelectItem key={job.job_number} value={job.job_number}>
-                    {job.job_number}
+                    {`${job.job_number} - ${job.job_name}`}
                   </SelectItem>
-                ))}
+                )}
               </Select>
             )}
           />

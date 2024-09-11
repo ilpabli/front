@@ -8,7 +8,7 @@ import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
 
 function Signin() {
-  const [error, setError] = useState<String|undefined>("");
+  const [error, setError] = useState<String | undefined>("");
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -39,7 +39,7 @@ function Signin() {
         redirect: false,
         user: data.user,
         password: data.password,
-      })
+      });
       if (res?.error) setError(res.error as string);
       if (res?.ok) return router.push("/tickets");
     } catch (error: any) {
@@ -48,7 +48,7 @@ function Signin() {
   });
 
   return (
-    <div className="flex flex-col justify-center items-center h-[calc(90vh-4rem)]">
+    <div className="flex flex-row justify-center items-center min-h-screen">
       <Image
         priority={true}
         src="/tecky.png"
