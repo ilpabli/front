@@ -100,7 +100,7 @@ export const getTicketspriority = async () => {
 
 export const getTicketsforSearch = async (filter: any) => {
   try {
-    const res = await axiosInstance.get("/tickets/search", filter);
+    const res = await axiosInstance.post("/tickets/search", filter);
     return res.data;
   } catch (error) {
     throw error;
